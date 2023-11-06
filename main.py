@@ -33,7 +33,7 @@ class Unit:
         self.attack = 10
         self.speed = BLOCK_SIZE
         self.body = pygame.Rect(self.x, self.y, BLOCK_SIZE, BLOCK_SIZE)
-        self.side = "red" #ENUM?
+        self.side = "red" #enum to be
 
     def draw(self, window):
         pygame.draw.rect(window, BLUE, self.body)
@@ -84,6 +84,7 @@ def drawPause():
     pygame.display.update()
     
 def drawGrid():
+    WIN.fill(LIGHTGREEN)
 
     for x in range(0, WIDTH, BLOCK_SIZE):
         for y in range(0, HEIGHT, BLOCK_SIZE):
