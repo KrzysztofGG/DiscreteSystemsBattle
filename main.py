@@ -53,7 +53,7 @@ def main():
                 if not paused:
                     # map(lambda u: u.update(), units)
                     for u in units:
-                        u.update()
+                        u.update(grid.arena)
                     
                 
                     
