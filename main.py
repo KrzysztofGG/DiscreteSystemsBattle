@@ -13,7 +13,6 @@ pygame.init()
 
 
 
-
 WIDTH, HEIGHT = 1800, 1000
 BLOCK_SIZE = 10
 FPS = 60
@@ -31,10 +30,15 @@ def main():
 
     paused = False
 
-    unit_r = Infantry(Color.RED,450,500)
-    unit_b = Heavy(Color.BLUE,410,500)
-    unit_c = Cavalery(Color.BLACK,600,500)
-    units = [unit_r, unit_b,unit_c]
+    unit_r = Infantry(Color.RED,400,550, Side.RED)
+    unit_b = Infantry(Color.BLUE,450,570, Side.GREEN)
+    # unit_b = Heavy(Color.BLUE,410,500, Side.GREEN)
+    # unit_c = Cavalry(Color.BLACK,600,500, Side.GREEN)
+    units = [unit_r, unit_b]
+    grid.unit_locations["red"].append((unit_r.x//BLOCK_SIZE, unit_r.y//BLOCK_SIZE))
+    grid.unit_locations["green"].append((unit_b.x//BLOCK_SIZE, unit_b.y//BLOCK_SIZE))
+
+
     while True:
         CLOCK.tick(FPS)
         for event in pygame.event.get():
@@ -47,7 +51,7 @@ def main():
                 if not paused:
                     # map(lambda u: u.update(), units)
                     for u in units:
-                        u.update(grid.arena)
+                        u.update(grid.arena, grid.unit_locations)
                     
                 
                     

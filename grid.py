@@ -16,7 +16,7 @@ class GroundElement:
         self.color = Color.GREEN.value
         # self.units = dict()
         # temporal boolean
-        self.has_units = False
+        self.unit = None
         self.body = pygame.Rect(self.x, self.y, self.border, self.border)
     
     def draw(self, window):
@@ -24,6 +24,7 @@ class GroundElement:
 
     # def update():
 
+unit_locations = {'red': [], 'green': []}
 arena = np.zeros((WIDTH//BLOCK_SIZE, HEIGHT//BLOCK_SIZE), dtype=object)
 
 for x in range(0, arena.shape[0]):
