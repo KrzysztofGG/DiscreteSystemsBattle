@@ -1,2 +1,1 @@
-WIDTH, HEIGHT = 1800, 1000
-BLOCK_SIZE = 10
+ONT = pygame.font.SysFont('arial', 200)

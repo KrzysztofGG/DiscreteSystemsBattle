@@ -2,18 +2,16 @@ import pygame
 from pygame.locals import *
 import sys
 import random
-from unit import Unit
+from unit import *
+
+from grid import GroundElement
 import grid
-
-
+from color import Color
+# import numpy as np
 
 pygame.init()
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
-BLUE = (0, 0, 255)
-LIGHTGREEN = pygame.Color('#90EE90')
+
 
 
 WIDTH, HEIGHT = 1800, 1000
@@ -26,19 +24,17 @@ FONT = pygame.font.SysFont('arial', 200)
 MOVEMENT_EVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(MOVEMENT_EVENT, 200)
 
-
-
-
-
 def main():
     pygame.display.set_caption("Battle Simulator")
     CLOCK = pygame.time.Clock()
-    WIN.fill(LIGHTGREEN)
+    WIN.fill(Color.LIGHTGREEN.value)
 
     paused = False
 
-    unit = Unit()
-
+    unit_r = Infantry(Color.RED,450,500)
+    unit_b = Heavy(Color.BLUE,410,500)
+    unit_c = Cavalery(Color.BLACK,600,500)
+    units = [unit_r, unit_b,unit_c]
     while True:
         CLOCK.tick(FPS)
         for event in pygame.event.get():
@@ -49,19 +45,24 @@ def main():
                 paused = not paused
             elif event.type == MOVEMENT_EVENT:
                 if not paused:
-                    unit.update()
+                    # map(lambda u: u.update(), units)
+                    for u in units:
+                        u.update(grid.arena)
+                    
                 
                     
         if paused:
             grid.drawPause()
         else:
             grid.drawGrid()
-            unit.draw(WIN)
+            # map(lambda u: u.draw(WIN), units)
+            for u in units:
+                u.draw(WIN)
+
             pygame.display.update()
             
 if __name__ == "__main__":
     main()
-
 
 
 
