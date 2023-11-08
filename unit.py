@@ -1,21 +1,9 @@
 import pygame
 from enum import Enum
 from math import sin, cos, pi, radians
-
+from utils import *
 import numpy as np
 from collections import deque
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
-BLUE = (0, 0, 255)
-LIGHTGREEN = pygame.Color('#90EE90')
-
-BLOCK_SIZE = 10
-WIDTH, HEIGHT = 1800, 1000
-FPS = 60
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-
 
 class Side(Enum):
     RED=1
@@ -31,82 +19,98 @@ class Unit:
         self.y = y
         self.color = color
         self.side = side
-        self.speedX = BLOCK_SIZE//5
-        self.speedY = BLOCK_SIZE//5
+        self.default_speed = BLOCK_SIZE//5
+        self.speedX = self.default_speed
+        self.speedY = self.default_speed
+        self.range = 1
+        self.body = (x, y)
 
-    def update(self,arena, unit_locations):
-
-        if self.side == Side.RED:
-            side = "red"
-        else:
-            side = "green"
-        
+    def update(self, arena, unit_locations):
 
         arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
-        if arena[self.x//BLOCK_SIZE - 1, self.y//BLOCK_SIZE].unit != None or arena[self.x//BLOCK_SIZE + 1, self.y//BLOCK_SIZE].unit != None:
-            self.speed = 0
-
 
         # finding nearest enemy
         if self.side == Side.GREEN:
-            # enemy_x, enemy_y = find(arena, (self.x//BLOCK_SIZE, self.y//BLOCK_SIZE), Side.RED)
-            enemy_x, enemy_y = min(unit_locations["red"], key = lambda coords: distance(coords, (self.x, self.y)))
+            enemy_side = Side.RED
         else:
-            enemy_x, enemy_y = min(unit_locations["green"], key = lambda coords: distance(coords, (self.x, self.y)))
+            enemy_side = Side.GREEN
+        enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: distance(coords, (self.x, self.y)))
         
-        print(unit_locations)
+
         #setting horizontal spped
-        if enemy_x - self.x//BLOCK_SIZE > 0:
-            self.speedX = BLOCK_SIZE//5
-        elif enemy_x - self.x//BLOCK_SIZE == 0:
+
+        # if enemy_x - self.x//BLOCK_SIZE > 0:
+        #     self.speedX = self.default_speed
+        # elif enemy_x - self.x//BLOCK_SIZE == 0:
+        #     self.speedX = 0
+        # else:
+        #     self.speedX = -self.default_speed
+        if enemy_x - self.x > 0:
+            self.speedX = self.default_speed
+        elif enemy_x - self.x == 0:
             self.speedX = 0
         else:
-            self.speedX = -BLOCK_SIZE//5
+            self.speedX = -self.default_speed
 
-        # setting vertical speed BEWARE MINUS DIFFERENCE
-        if enemy_y - self.y//BLOCK_SIZE > 0:
-            self.speedY = BLOCK_SIZE//5
-        elif enemy_y - self.y//BLOCK_SIZE == 0: 
+        # setting vertical speed 
+
+        # if enemy_y - self.y//BLOCK_SIZE > 0:
+        #     self.speedY = self.default_speed
+        # elif enemy_y - self.y//BLOCK_SIZE == 0: 
+        #     self.speedY = 0
+        # else:
+        #     self.speedY = -self.default_speed
+
+        if enemy_y - self.y > 0:
+            self.speedY = self.default_speed
+        elif enemy_y - self.y == 0: 
             self.speedY = 0
         else:
-            self.speedY = -BLOCK_SIZE//5
+            self.speedY = -self.default_speed
 
+        if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
+            pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
+            self.speedX = 0
+            self.speedY = 0
 
-        unit_locations[side].remove((self.x//BLOCK_SIZE, self.y//BLOCK_SIZE))
+        # adjusting speed if enemy nearby
+        # if (arena[self.x//BLOCK_SIZE - self.range, self.y//BLOCK_SIZE].unit != None or 
+        #     arena[self.x//BLOCK_SIZE + self.range, self.y//BLOCK_SIZE].unit != None or
+        #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE - self.range].unit != None or
+        #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE + self.range].unit != None):
+        #     self.speedX = 0
+        #     self.speedY = 0
+
+        # unit_locations[self.side].remove((self.x//BLOCK_SIZE, self.y//BLOCK_SIZE))
+        unit_locations[self.side].remove((self.x, self.y))
 
         self.x += self.speedX
         self.y += self.speedY
 
-        unit_locations[side].append((self.x//BLOCK_SIZE, self.y//BLOCK_SIZE))
+        # unit_locations[self.side].append((self.x//BLOCK_SIZE, self.y//BLOCK_SIZE))
+        unit_locations[self.side].append((self.x, self.y))
 
         # self.body = pygame.Rect(self.x, self.y,self.size, self.size)
 
         arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
+        
+
 
 
 
 
 class Infantry(Unit):
-    def __init__(self,color,x,y, side):
+    def __init__(self, color, x, y, side):
         # Unit.__init__(self,color,x,y)
         super().__init__(color, x, y, side)
         self.size=BLOCK_SIZE
         self.strength=10
         self.health=100
-        self.speed=BLOCK_SIZE//3
-        # self.body = pygame.Rect(self.x, self.y,self.size,self.size)
-        self.body = (x, y)
-      
-    # def update(self,arena):
-    #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit != None
-    #     if arena[self.x//BLOCK_SIZE - 1, self.y//BLOCK_SIZE].unit != None or arena[self.x//BLOCK_SIZE + 1, self.y//BLOCK_SIZE].unit != None:
-    #         self.speed = 0
-
-    #     self.x -= self.speed
-    #     self.body = pygame.Rect(self.x, self.y,self.size, self.size)
-
-    #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
-
+        self.default_speed = BLOCK_SIZE//5
+        self.speedX = self.default_speed
+        self.speedY = self.default_speed
+        self.range = 1
+        
     def draw(self, window):
         # pygame.draw.rect(window, self.color.value, self.body)
         pygame.draw.rect(window, self.color.value, pygame.Rect(self.x, self.y, self.size, self.size))
@@ -118,11 +122,10 @@ class Heavy(Unit):
         self.size=BLOCK_SIZE
         self.strength=30
         self.health=200
-        # self.x=x
-        # self.y=y
-        self.body=(x, y)
-        self.speed=BLOCK_SIZE//5
-        # Unit.__init__(self,color,x,y)
+        self.default_speed = BLOCK_SIZE//5
+        self.speedX = self.default_speed
+        self.speedY = self.default_speed
+        self.range = 2
 
     # def update(self,arena):
     #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit != None
@@ -135,7 +138,7 @@ class Heavy(Unit):
     #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
 
     def draw(self, window):
-        pygame.draw.circle(window, self.color.value, self.body ,self.size)
+        pygame.draw.circle(window, self.color.value, self.body, self.size)
 
 
 
@@ -145,8 +148,10 @@ class Cavalry(Unit):
         self.size=BLOCK_SIZE
         self.strength=60
         self.health=150
-        self.speed=BLOCK_SIZE
-        # Unit.__init__(self,color,x,y)
+        self.default_speed = BLOCK_SIZE
+        self.speedX = self.default_speed
+        self.speedY = self.default_speed
+        self.range = 2
         self.body=makeTriangle(self.size,45,0)
         offsetTriangle(self.body, self.x, self.y)
 
@@ -161,11 +166,8 @@ class Cavalry(Unit):
     #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
 
     def draw(self, window):
+        offsetTriangle(self.body, -self.speedX,0)
         drawTriangle(self.body, self.color.value)
-
-
-
-
 
 
 

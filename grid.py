@@ -1,12 +1,8 @@
 import pygame
 import numpy as np
 from color import Color
-
-
-WIDTH, HEIGHT = 1800, 1000
-BLOCK_SIZE = 10
-FPS = 60
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+from utils import *
+from unit import Side
 
 class GroundElement:
     def __init__(self, x, y):
@@ -24,7 +20,7 @@ class GroundElement:
 
     # def update():
 
-unit_locations = {'red': [], 'green': []}
+unit_locations = {Side.RED: [], Side.GREEN: []}
 arena = np.zeros((WIDTH//BLOCK_SIZE, HEIGHT//BLOCK_SIZE), dtype=object)
 
 for x in range(0, arena.shape[0]):
