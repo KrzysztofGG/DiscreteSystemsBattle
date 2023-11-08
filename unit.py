@@ -4,6 +4,7 @@ from math import sin, cos, pi, radians
 from utils import *
 import numpy as np
 from collections import deque
+from math import sqrt, pow
 
 class Side(Enum):
     RED=1
@@ -27,7 +28,7 @@ class Unit:
 
     def update(self, arena, unit_locations):
 
-        arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
+        # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
 
         # finding nearest enemy
         if self.side == Side.GREEN:
@@ -45,12 +46,20 @@ class Unit:
         #     self.speedX = 0
         # else:
         #     self.speedX = -self.default_speed
-        if enemy_x - self.x > 0:
-            self.speedX = self.default_speed
-        elif enemy_x - self.x == 0:
+
+        dx = enemy_x - self.x
+        dy = enemy_y - self.y
+        
+        dist = sqrt(pow(dx, 2) + pow(dy, 2))
+        sinus = abs(dy)/dist
+        cosinus = abs(dx)/dist
+
+        if  dx > 0:
+            self.speedX = self.default_speed * cosinus
+        elif dx == 0:
             self.speedX = 0
         else:
-            self.speedX = -self.default_speed
+            self.speedX = -self.default_speed * cosinus
 
         # setting vertical speed 
 
@@ -61,12 +70,12 @@ class Unit:
         # else:
         #     self.speedY = -self.default_speed
 
-        if enemy_y - self.y > 0:
-            self.speedY = self.default_speed
-        elif enemy_y - self.y == 0: 
+        if dy > 0:
+            self.speedY = self.default_speed * sinus
+        elif dy == 0: 
             self.speedY = 0
         else:
-            self.speedY = -self.default_speed
+            self.speedY = -self.default_speed * sinus
 
         if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
             pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
@@ -92,7 +101,7 @@ class Unit:
 
         # self.body = pygame.Rect(self.x, self.y,self.size, self.size)
 
-        arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
+        # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
         
 
 
@@ -212,22 +221,22 @@ def offsetTriangle(triangle, offsetx, offsety):
     triangle.p2[0] += offsetx;  triangle.p2[1] += offsety
     triangle.p3[0] += offsetx;  triangle.p3[1] += offsety
 
-ADJACENT = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+# ADJACENT = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
-def find(data: np.array, start: tuple, searched_side):
+# def find(data: np.array, start: tuple, searched_side):
   
-  queue = deque()
-  queue.append(start)
+#   queue = deque()
+#   queue.append(start)
 
-  while queue:
-    pos = queue.popleft()
-    if data[pos[0], pos[1]] == searched_side:
-      print(pos[0], pos[1])
-      return (pos[0], pos[1])
-    else:
-      for dxy in ADJACENT:
-        (x, y) = (pos[0] + dxy[0], pos[1] + dxy[1])
-        if x >= 0 and x < data.shape[0] and y >= 0 and y < data.shape[1]:
-          queue.append((x,y))
+#   while queue:
+#     pos = queue.popleft()
+#     if data[pos[0], pos[1]] == searched_side:
+#       print(pos[0], pos[1])
+#       return (pos[0], pos[1])
+#     else:
+#       for dxy in ADJACENT:
+#         (x, y) = (pos[0] + dxy[0], pos[1] + dxy[1])
+#         if x >= 0 and x < data.shape[0] and y >= 0 and y < data.shape[1]:
+#           queue.append((x,y))
 
-  return None
+#   return None
