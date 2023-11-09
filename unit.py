@@ -10,8 +10,7 @@ class Side(Enum):
     RED=1
     GREEN=2
 
-def distance(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
 
 
 class Unit:
@@ -26,8 +25,11 @@ class Unit:
         self.range = 1
         self.body = (x, y)
 
-    def update(self, arena, unit_locations):
+    def distance(self, a, b):
+        return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+    def update(self, arena, unit_locations):
+        
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
 
         # finding nearest enemy
@@ -35,7 +37,7 @@ class Unit:
             enemy_side = Side.RED
         else:
             enemy_side = Side.GREEN
-        enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: distance(coords, (self.x, self.y)))
+        enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
         
 
         #setting horizontal spped
@@ -90,23 +92,16 @@ class Unit:
         #     self.speedX = 0
         #     self.speedY = 0
 
-        # unit_locations[self.side].remove((self.x//BLOCK_SIZE, self.y//BLOCK_SIZE))
         unit_locations[self.side].remove((self.x, self.y))
 
         self.x += self.speedX
         self.y += self.speedY
 
-        # unit_locations[self.side].append((self.x//BLOCK_SIZE, self.y//BLOCK_SIZE))
         unit_locations[self.side].append((self.x, self.y))
-
-        # self.body = pygame.Rect(self.x, self.y,self.size, self.size)
+        self.body = (self.x, self.y)
 
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
         
-
-
-
-
 
 class Infantry(Unit):
     def __init__(self, color, x, y, side):
@@ -128,23 +123,13 @@ class Infantry(Unit):
 class Heavy(Unit):
     def __init__(self,color,x,y, side):
         super().__init__(color, x, y, side)
-        self.size=BLOCK_SIZE
+        self.size=BLOCK_SIZE//2
         self.strength=30
         self.health=200
-        self.default_speed = BLOCK_SIZE//5
+        self.default_speed = BLOCK_SIZE//10
         self.speedX = self.default_speed
         self.speedY = self.default_speed
         self.range = 2
-
-    # def update(self,arena):
-    #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit != None
-    #     if arena[self.x//BLOCK_SIZE - 1, self.y//BLOCK_SIZE].unit != None or arena[self.x//BLOCK_SIZE + 2, self.y//BLOCK_SIZE].unit != None:
-    #         self.speed = 0
-
-    #     self.x -= self.speed
-    #     self.body = (self.x,self.y)
-
-    #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
 
     def draw(self, window):
         pygame.draw.circle(window, self.color.value, self.body, self.size)
@@ -161,7 +146,7 @@ class Cavalry(Unit):
         self.speedX = self.default_speed
         self.speedY = self.default_speed
         self.range = 2
-        self.body=makeTriangle(self.size,45,0)
+        self.body=makeTriangle(self.size, 45, 0)
         offsetTriangle(self.body, self.x, self.y)
 
     # def update(self,arena):
@@ -174,8 +159,12 @@ class Cavalry(Unit):
        
     #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
 
-    def draw(self, window):
+    def update(self, arena, unit_locations):
+        super().update(arena, unit_locations)
         offsetTriangle(self.body, -self.speedX,0)
+
+
+    def draw(self, window):
         drawTriangle(self.body, self.color.value)
 
 
