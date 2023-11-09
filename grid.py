@@ -19,50 +19,69 @@ class GroundElement:
         pygame.draw.rect(window, self.color, self.body)
     
     def updateColor(self):
-        green_value = min(255, int(255*self.height)*0.9)
+        green_value = min(255, int(255*self.height)*0.8)
         self.color = (0, green_value, 0)
 
     # def update():
 
-def create_hill_on_arena(centerX, centerY, radius, arena, max_height):
+def create_circle_hill_on_arena(centerX, centerY, radius, arena, max_height):
     diameter = (radius * 2) + 1
     radiusSq = (radius * radius) / 4
-
-    # centerX = arena_start_x 
-    # centerY = arena_start_y 
 
     for y in range(centerY - radius, centerY + radius):
         yDiff = y - centerY
         threshold = radiusSq - (yDiff * yDiff)
         for x in range(centerX - radius, centerX + radius):
 
-            if (y + centerY > 0 and y + centerY < arena.shape[0] and
-                x + centerX > 0 and x + centerX < arena.shape[1]):
+            if( y >= 0 and y < arena.shape[0] and
+                x >= 0 and x < arena.shape[1]):
               
               xDiff = x - centerX
               if xDiff * xDiff <= threshold:
                   dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
                   height_increase = max_height - dist/radius + random.uniform(0, 0.03)
-                  arena[y + centerY, x + centerX].height += height_increase
-                  if arena[y + centerY, x + centerX].height > 1:
-                      arena[y + centerY, x + centerX].height = 1
 
-                  arena[y + centerY, x + centerX].updateColor()
+                  arena[y, x].height += height_increase
+                  if arena[y, x].height > 1:
+                      arena[y, x].height = 1
+
+                  arena[y, x].updateColor()
+
+def create_elipse_hill_on_arena(centerX, centerY, radiusX, radiusY, arena, max_height):
+    for y in range(centerY - radiusY, centerY + radiusY):
+        for x in range(centerX - radiusX, centerX + radiusX):
+            if( y >= 0 and y < arena.shape[0] and
+                x >= 0 and x < arena.shape[1]):
+                eq1 = pow(x/radiusX, 2)
+                eq2  = pow(y/radiusY, 2)
+                if eq1 + eq2 - 1 < 0:
+                    
+                    #need to find a smart way of distributing color evenly
+
+                    # dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
+                    # height_increase = max_height - dist/radius + random.uniform(0, 0.03)
+                    pass
+                    arena[y, x].height += height_increase
+                    if arena[y, x].height > 1:
+                        arena[y, x].height = 1
+
+                    arena[y, x].updateColor()
+
 
 def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
 
     while(n_hills):
-        r = min(arena.shape[0], arena.shape[1])
+        # r = min(arena.shape[0], arena.shape[1])
 
-        x = random.randint(min_radius/2, arena.shape[0] - min_radius/2)
-        y = random.randint(min_radius/2, arena.shape[1] - min_radius/2)
+        x = random.randint(min_radius/4, arena.shape[1] - min_radius/4)
+        y = random.randint(min_radius/4, arena.shape[0] - min_radius/4)
 
         if x > arena.shape[0] or y > arena.shape[1]:
             continue
         else:
             radius = random.randint(min_radius, max_radius)
-            max_height = random.uniform(0.5, 1)
-            create_hill_on_arena(x, y, radius, arena, max_height)
+            max_height = random.uniform(0.5, 0.7)
+            create_circle_hill_on_arena(x, y, radius, arena, max_height)
             n_hills -= 1
 
 
@@ -73,7 +92,7 @@ for x in range(0, arena.shape[0]):
     for y in range(0, arena.shape[1]):
         arena[x, y] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
 
-fill_arena_with_hills(3, 60, 80, arena)
+fill_arena_with_hills(6, 60, 80, arena)
 # for x in range(0, arena.shape[0]):
 #     for y in range(0, arena.shape[1]):
 #         if arena[x, y].height > 0:
