@@ -77,15 +77,16 @@ def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
 
         first_range = (n_hills - current_hill)/n_hills
         second_range = (n_hills - current_hill + 1)/n_hills
-        x = random.randint(int(arena.shape[0] * first_range), int(arena.shape[0] * second_range))
-        # y = random.randint(int(arena.shape[1] * first_range), int(arena.shape[1] * second_range))
-        y = random.randint(min_radius/2, arena.shape[1] - min_radius/2)
+        x = random.randint(int(arena.shape[1] * first_range), int(arena.shape[1] * second_range))
+        y = random.randint(min_radius/2, arena.shape[0] - min_radius/2)
+        # x = random.randint(0, arena.shape[1])
+        # y = random.randint(0, arena.shape[0])
         print(x, y)
-        if x > arena.shape[0] or y > arena.shape[1]:
+        if x > arena.shape[1] or y > arena.shape[0]:
             continue
         else:
             radius = random.randint(min_radius, max_radius)
-            max_height = random.uniform(0.3, 0.4)
+            max_height = random.uniform(0.3, 0.6)
             create_circle_hill_on_arena(x, y, radius, arena, max_height)
             current_hill -= 1
 
@@ -97,7 +98,7 @@ for x in range(0, arena.shape[0]):
     for y in range(0, arena.shape[1]):
         arena[x, y] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
 
-fill_arena_with_hills(6, 50, 70, arena)
+fill_arena_with_hills(3, 70, 90, arena)
 # create_circle_hill_on_arena(10, 10, 5, arena, 0.8)
 
 def drawPause():
