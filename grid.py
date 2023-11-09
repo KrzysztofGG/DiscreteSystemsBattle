@@ -30,16 +30,17 @@ def create_circle_hill_on_arena(centerX, centerY, radius, arena, max_height):
 
     for y in range(centerY - radius, centerY + radius):
         yDiff = y - centerY
-        threshold = radiusSq - (yDiff * yDiff)
+        # threshold = radiusSq - (yDiff * yDiff)
+        threshold = radius*radius - (yDiff * yDiff)
         for x in range(centerX - radius, centerX + radius):
 
-            if( y >= 0 and y < arena.shape[0] and
-                x >= 0 and x < arena.shape[1]):
+            if( y >= 0 and y < arena.shape[0]  and
+                x >= 0 and x < arena.shape[1] ):
               
               xDiff = x - centerX
               if xDiff * xDiff <= threshold:
                   dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
-                  height_increase = max_height - dist/radius + random.uniform(0, 0.03)
+                  height_increase = max_height - max_height*(dist/radius) + random.uniform(0, 0.03)
 
                   arena[y, x].height += height_increase
                   if arena[y, x].height > 1:
@@ -70,19 +71,23 @@ def create_elipse_hill_on_arena(centerX, centerY, radiusX, radiusY, arena, max_h
 
 def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
 
-    while(n_hills):
+    current_hill = n_hills
+    while(current_hill):
         # r = min(arena.shape[0], arena.shape[1])
 
-        x = random.randint(min_radius/4, arena.shape[1] - min_radius/4)
-        y = random.randint(min_radius/4, arena.shape[0] - min_radius/4)
-
+        first_range = (n_hills - current_hill)/n_hills
+        second_range = (n_hills - current_hill + 1)/n_hills
+        x = random.randint(int(arena.shape[0] * first_range), int(arena.shape[0] * second_range))
+        # y = random.randint(int(arena.shape[1] * first_range), int(arena.shape[1] * second_range))
+        y = random.randint(min_radius/2, arena.shape[1] - min_radius/2)
+        print(x, y)
         if x > arena.shape[0] or y > arena.shape[1]:
             continue
         else:
             radius = random.randint(min_radius, max_radius)
-            max_height = random.uniform(0.5, 0.7)
+            max_height = random.uniform(0.3, 0.4)
             create_circle_hill_on_arena(x, y, radius, arena, max_height)
-            n_hills -= 1
+            current_hill -= 1
 
 
 unit_locations = {Side.RED: [], Side.GREEN: []}
@@ -92,11 +97,8 @@ for x in range(0, arena.shape[0]):
     for y in range(0, arena.shape[1]):
         arena[x, y] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
 
-fill_arena_with_hills(6, 60, 80, arena)
-# for x in range(0, arena.shape[0]):
-#     for y in range(0, arena.shape[1]):
-#         if arena[x, y].height > 0:
-            # print("XD")
+fill_arena_with_hills(6, 50, 70, arena)
+# create_circle_hill_on_arena(10, 10, 5, arena, 0.8)
 
 def drawPause():
     FONT = pygame.font.SysFont('arial', 200)
