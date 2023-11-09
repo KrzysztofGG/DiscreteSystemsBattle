@@ -14,19 +14,71 @@ class Side(Enum):
 
 
 class Unit:
-    def __init__(self, color, x, y, side):
+    def __init__(self, color, x, y, side, id=0):
+        self.id = id
         self.x = x
         self.y = y
         self.color = color
         self.side = side
-        self.default_speed = BLOCK_SIZE//5
-        self.speedX = self.default_speed
-        self.speedY = self.default_speed
+        # self.default_speed = BLOCK_SIZE//5
+        # self.speedX = self.default_speed
+        # self.speedY = self.default_speed
+        self.max_speed = BLOCK_SIZE//5
+        self.min_speed = BLOCK_SIZE//20
+        self.speed = self.max_speed 
+        self.speedX = self.max_speed
+        self.speedY = self.max_speed
         self.range = 1
         self.body = (x, y)
 
     def distance(self, a, b):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    
+    def count_speed_change(self, arena): #based on changing height of terrain
+        
+        future_x = int((self.x + self.speedX)//BLOCK_SIZE)
+        future_y = int((self.y + self.speedY)//BLOCK_SIZE)
+        current_x = int(self.x//BLOCK_SIZE)
+        current_y = int(self.y//BLOCK_SIZE)
+        height_diff = arena[future_y, future_x].height - arena[current_y, current_x ].height
+
+        #preety sure it can be done nicer
+        SPEED_CHANGE_MODIFIER = 10
+        speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
+
+        return speed_change
+    
+    def count_speed(self, enemy_x, enemy_y, arena):
+
+        dx = enemy_x - self.x
+        dy = enemy_y - self.y
+        
+        dist = sqrt(pow(dx, 2) + pow(dy, 2))
+        sinus = abs(dy)/dist
+        cosinus = abs(dx)/dist
+
+        #count speed in direction to target
+        self.speed += self.count_speed_change(arena)
+        if self.speed > self.max_speed:
+            self.speed = self.max_speed
+        if self.speed < self.min_speed:
+            self.speed = self.min_speed
+
+        #count horizontal speed component
+        if dx > 0:
+            self.speedX = self.speed * cosinus
+        elif dx == 0:
+            self.speedX = 0
+        else:
+            self.speedX = -self.speed * cosinus
+
+        #count vertical speed component
+        if dy > 0:
+            self.speedY = self.speed * sinus
+        elif dy == 0:
+            self.speedY = 0
+        else:
+            self.speedY = -self.speed * sinus
 
     def update(self, arena, unit_locations):
         
@@ -39,51 +91,18 @@ class Unit:
             enemy_side = Side.GREEN
         enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
         
-
-        #setting horizontal spped
-
-        # if enemy_x - self.x//BLOCK_SIZE > 0:
-        #     self.speedX = self.default_speed
-        # elif enemy_x - self.x//BLOCK_SIZE == 0:
-        #     self.speedX = 0
-        # else:
-        #     self.speedX = -self.default_speed
-
-        dx = enemy_x - self.x
-        dy = enemy_y - self.y
+        self.count_speed(enemy_x, enemy_y, arena)
         
-        dist = sqrt(pow(dx, 2) + pow(dy, 2))
-        sinus = abs(dy)/dist
-        cosinus = abs(dx)/dist
+        
 
-        if  dx > 0:
-            self.speedX = self.default_speed * cosinus
-        elif dx == 0:
-            self.speedX = 0
-        else:
-            self.speedX = -self.default_speed * cosinus
-
-        # setting vertical speed 
-
-        # if enemy_y - self.y//BLOCK_SIZE > 0:
-        #     self.speedY = self.default_speed
-        # elif enemy_y - self.y//BLOCK_SIZE == 0: 
-        #     self.speedY = 0
-        # else:
-        #     self.speedY = -self.default_speed
-
-        if dy > 0:
-            self.speedY = self.default_speed * sinus
-        elif dy == 0: 
-            self.speedY = 0
-        else:
-            self.speedY = -self.default_speed * sinus
 
         if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
             pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
             self.speedX = 0
             self.speedY = 0
 
+        
+        
         # adjusting speed if enemy nearby
         # if (arena[self.x//BLOCK_SIZE - self.range, self.y//BLOCK_SIZE].unit != None or 
         #     arena[self.x//BLOCK_SIZE + self.range, self.y//BLOCK_SIZE].unit != None or
@@ -104,9 +123,9 @@ class Unit:
         
 
 class Infantry(Unit):
-    def __init__(self, color, x, y, side):
+    def __init__(self, color, x, y, side, id=0):
         # Unit.__init__(self,color,x,y)
-        super().__init__(color, x, y, side)
+        super().__init__(color, x, y, side, id)
         self.size=BLOCK_SIZE
         self.strength=10
         self.health=100
@@ -166,8 +185,6 @@ class Cavalry(Unit):
 
     def draw(self, window):
         drawTriangle(self.body, self.color.value)
-
-
 
 
 class Triangle:

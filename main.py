@@ -24,9 +24,9 @@ def main():
     paused = False
 
     unit_r = Infantry(Color.RED,350,550, Side.RED)
-    unit_r2 = Heavy(Color.RED,650,550, Side.RED)
-    unit_b = Infantry(Color.BLUE,600,570, Side.GREEN)
-    unit_c = Infantry(Color.BLUE,380,500, Side.GREEN)
+    unit_r2 = Heavy(Color.RED,650,500, Side.RED)
+    unit_b = Infantry(Color.BLUE,600,570, Side.GREEN, 1)
+    unit_c = Infantry(Color.BLUE,380,400, Side.GREEN)
     # unit_b = Heavy(Color.BLUE,410,500, Side.GREEN)
     # unit_c = Cavalry(Color.BLACK,600,500, Side.GREEN)
     units = [unit_r, unit_b, unit_c, unit_r2]

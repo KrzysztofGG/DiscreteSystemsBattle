@@ -11,7 +11,7 @@ class GroundElement:
         self.y = y
         self.border = BLOCK_SIZE
         self.height = 0.2
-        self.color = (0, min(255, int(255*self.height)), 0)
+        self.color = (0, min(255, int(255*(self.height + 0.1))), 0)
         self.unit = None
         self.body = pygame.Rect(self.x, self.y, self.border, self.border)
     
@@ -19,7 +19,7 @@ class GroundElement:
         pygame.draw.rect(window, self.color, self.body)
     
     def updateColor(self):
-        green_value = min(255, int(255*self.height)*0.8)
+        green_value = min(255, int(255*(self.height + 0.1)))
         self.color = (0, green_value, 0)
 
     # def update():
@@ -79,9 +79,6 @@ def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
         second_range = (n_hills - current_hill + 1)/n_hills
         x = random.randint(int(arena.shape[1] * first_range), int(arena.shape[1] * second_range))
         y = random.randint(min_radius/2, arena.shape[0] - min_radius/2)
-        # x = random.randint(0, arena.shape[1])
-        # y = random.randint(0, arena.shape[0])
-        print(x, y)
         if x > arena.shape[1] or y > arena.shape[0]:
             continue
         else:
@@ -98,7 +95,7 @@ for x in range(0, arena.shape[0]):
     for y in range(0, arena.shape[1]):
         arena[x, y] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
 
-fill_arena_with_hills(3, 70, 90, arena)
+fill_arena_with_hills(4, 40, 60, arena)
 # create_circle_hill_on_arena(10, 10, 5, arena, 0.8)
 
 def drawPause():
