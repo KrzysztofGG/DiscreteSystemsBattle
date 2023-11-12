@@ -1,1 +1,0 @@
-ONT = pygame.font.SysFont('arial', 200)

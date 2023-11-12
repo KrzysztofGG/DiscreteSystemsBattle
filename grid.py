@@ -87,8 +87,9 @@ def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
             create_circle_hill_on_arena(x, y, radius, arena, max_height)
             current_hill -= 1
 
-
-unit_locations = {Side.RED: [], Side.GREEN: []}
+#deprecated will be using units_dict
+# unit_locations = {Side.RED: [], Side.GREEN: []}
+units_dict = {Side.RED: [], Side.GREEN: []}
 
 arena = np.zeros((WIDTH//BLOCK_SIZE, HEIGHT//BLOCK_SIZE), dtype=object)
 for x in range(0, arena.shape[0]):
@@ -96,14 +97,29 @@ for x in range(0, arena.shape[0]):
         arena[x, y] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
 
 fill_arena_with_hills(4, 40, 60, arena)
-# create_circle_hill_on_arena(10, 10, 5, arena, 0.8)
 
 def drawPause():
     FONT = pygame.font.SysFont('arial', 200)
     pause_text = FONT.render("PAUSED", 1, Color.WHITE.value)
+    pause_text.set_alpha(10)
     WIN.blit(pause_text, (WIDTH/2 - pause_text.get_width()/2,    
                           HEIGHT/2 - pause_text.get_height()/2))
     pygame.display.update()
+
+def draw_end_screen():
+    FONT = pygame.font.SysFont('arial', 200)
+    if len(units_dict[Side.GREEN]) > 0:
+        winner = "GREEN"
+    else:
+        winner = "RED"
+    text = f'{winner} UNITS WIN'
+    text_render = FONT.render(text, 1, Color.WHITE.value)
+    WIN.blit(text_render, (WIDTH/2 - text_render.get_width()/2,
+                           HEIGHT/2 - text_render.get_height()/2))
+    pygame.display.update()
+    pygame.time.delay(1000)
+
+
     
 def drawGrid():
     for x in range(0, arena.shape[0]):

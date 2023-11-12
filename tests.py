@@ -1,55 +1,41 @@
-def circle_around(arr):
 
-    index = 0
-    s = arr.shape
-    x, y = 1, 1
-    r = 1
-    i, j = x- 1, y - 1
-    while index < 10:
-        while i < x + r and i < s[0]:
-            print(arr[i, j])
-            i += 1
-        while j < y + r and j < s[1]:
-            print(arr[i, j])
-            j += 1
-        while i > x - r and i >= 0:
-            print(arr[i, j])
-            i -= 1
-        while j > y - r and j >=0:
-            print(arr[i, j])
-            j -=1
-        r += 1
-        j -= 1
-        index += 1
-        if j < 0:
-            break
-        # print(i, j)
 
 import numpy as np
-from collections import deque
+from math import sqrt, pow
 
-ADJACENT = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-
-def find(data: np.array, start: tuple):
-  
-  queue = deque()
-  queue.append(start)
-
-  while queue:
-    pos = queue.popleft()
-    if data[pos[0], pos[1]]:
-      return (pos[0], pos[1])
-    else:
-      for dxy in ADJACENT:
-        (x, y) = (pos[0] + dxy[0], pos[1] + dxy[1])
-        if x >= 0 and x < data.shape[0] and y >= 0 and y < data.shape[1]:
-          queue.append((x,y))
-          print(x, y)
-
-  return None
+def create_hill_on_arena(centerX, centerY, radius, arena, arena_start_x, arena_start_y, max_height):
+    radius = (radius * 2) + 1
+    radiusSq = (radius * radius) / 4
+    for y in range(0, radius):
+        yDiff = y - centerY
+        threshold = radiusSq - (yDiff * yDiff)
+        for x in range(0, radius):
+            if (y + arena_start_y > 0 and y + arena_start_y < arena.shape[0] and
+                x + arena_start_x > 0 and x + arena_start_x < arena.shape[1]):
+              xDiff = x - centerX
+              if xDiff * xDiff <= threshold:
+                  dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
+                  height_increase = max_height - dist/radius
+                  # arena[y, x].height += height_increase
+                  arena[y + arena_start_y, x + arena_start_x] += height_increase
 
 
-arr = np.zeros([180, 100])
-arr[0, 3] = 1
-arr[0, 0] = 1
-print(find(arr, (100,30)))
+
+arena = np.zeros([18, 10])
+create_hill_on_arena(8, 5, 4, arena, 0.8)
+print(arena)
+
+
+def create_hill_on_arena_og(centerX, centerY, radius, arr, arena, max_height):
+    radius = (radius * 2) + 1
+    radiusSq = (radius * radius) / 4
+    for y in range(0, arr.shape[0]):
+        yDiff = y - centerY
+        threshold = radiusSq - (yDiff * yDiff)
+        for x in range(0, arr.shape[1]):
+            xDiff = x - centerX
+            if xDiff * xDiff <= threshold:
+                dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
+                height_increase = max_height - dist/radius
+                # arena[y, x].height += height_increase
+                arena[y, x] += height_increase

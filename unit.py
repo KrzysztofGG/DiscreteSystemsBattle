@@ -1,31 +1,34 @@
 import pygame
 from enum import Enum
-from math import sin, cos, pi, radians
+from math import sin, cos, pi, radians, sqrt, pow
 from utils import *
-import numpy as np
-from collections import deque
-from math import sqrt, pow
+import random
+import os
+from color import Color
 
 class Side(Enum):
     RED=1
     GREEN=2
+    
+pygame.mixer.init()
+DEATH_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'death-sound.mp3'))
+DEATH_SOUND.set_volume(0.2)
 
-
-
+GAME_ENDS_EVENT = pygame.USEREVENT + 2
 
 class Unit:
     def __init__(self, color, x, y, side, id=0):
         self.id = id
         self.x = x
         self.y = y
+        self.health = 100
+        self.max_strength = 20
+        self.strength = self.max_strength
         self.color = color
         self.side = side
-        # self.default_speed = BLOCK_SIZE//5
-        # self.speedX = self.default_speed
-        # self.speedY = self.default_speed
-        self.max_speed = BLOCK_SIZE//5
-        self.min_speed = BLOCK_SIZE//20
-        self.speed = self.max_speed 
+        self.max_speed = BLOCK_SIZE//2
+        self.min_speed = BLOCK_SIZE//6
+        self.speed = (self.max_speed + self.min_speed)//2
         self.speedX = self.max_speed
         self.speedY = self.max_speed
         self.range = 1
@@ -34,17 +37,49 @@ class Unit:
     def distance(self, a, b):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
     
+    def get_location(self):
+        return (self.x, self.y)
+    
+    def show_unit_details(self):
+        FONT = pygame.font.SysFont('arial', 10)
+        box_width, box_height = 60, 40
+
+        rect = pygame.draw.rect(WIN, Color.WHITE.value, (self.x, self.y, box_width, box_height))
+        text1 = f'Health: {int(self.health)}'
+        text2 = f'Strength: {int(self.strength)}'
+        text3 = f'Speed: {int(self.speed)}'
+
+        text_render1 = FONT.render(text1, 1, self.color.value)
+        text_render2 = FONT.render(text2, 1, self.color.value)
+        text_render3 = FONT.render(text3, 1, self.color.value)
+
+        WIN.blit(text_render1, (rect.x, rect.y))
+        WIN.blit(text_render2, (rect.x, rect.y + text_render1.get_height()))
+        WIN.blit(text_render3, (rect.x, rect.y + text_render2.get_height() * 2))
+
+    
+    def hit_enemy(self, enemy, units_dict):
+        enemy.health -= self.strength + random.uniform(0, self.strength)
+        if enemy.health <= 0:
+            DEATH_SOUND.play()
+            units_dict[enemy.side].remove(enemy)
+        return len(units_dict[enemy.side]) == 0
+
     def count_speed_change(self, arena): #based on changing height of terrain
         
         future_x = int((self.x + self.speedX)//BLOCK_SIZE)
         future_y = int((self.y + self.speedY)//BLOCK_SIZE)
         current_x = int(self.x//BLOCK_SIZE)
         current_y = int(self.y//BLOCK_SIZE)
-        height_diff = arena[future_y, future_x].height - arena[current_y, current_x ].height
+        height_diff = arena[future_y, future_x].height - arena[current_y, current_x].height
 
         #preety sure it can be done nicer
         SPEED_CHANGE_MODIFIER = 10
-        speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
+        if height_diff == 0:
+            speed_change = (self.max_speed - self.speed)/100
+            print(speed_change)
+        else:
+            speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
 
         return speed_change
     
@@ -80,7 +115,10 @@ class Unit:
         else:
             self.speedY = -self.speed * sinus
 
-    def update(self, arena, unit_locations):
+        #update strengh based on speed
+        self.strength = self.max_strength/2 + self.max_strength * (self.speed/self.max_speed)/2
+
+    def update(self, arena, units_dict):
         
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
 
@@ -89,17 +127,28 @@ class Unit:
             enemy_side = Side.RED
         else:
             enemy_side = Side.GREEN
-        enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
-        
-        self.count_speed(enemy_x, enemy_y, arena)
-        
-        
-
-
-        if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
-            pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
+        # enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
+        # units_locations = list(map(lambda u: (u.x, u.y), units_dict[enemy_side]))
+        if len(units_dict[enemy_side]) == 0:
             self.speedX = 0
             self.speedY = 0
+            return 
+        
+        enemy = min(units_dict[enemy_side], key = lambda e: self.distance(e.get_location(), (self.x, self.y)))
+        enemy_x, enemy_y = enemy.x, enemy.y
+        # enemy_x, enemy_y = min(units_locations, key = lambda coords: self.distance(coords, (self.x, self.y)))
+
+        self.count_speed(enemy_x, enemy_y, arena)
+        
+        if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
+            pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
+            self.speed = 0
+            self.speedX = 0
+            self.speedY = 0
+            if self.hit_enemy(enemy, units_dict):
+                pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
+
+        
 
         
         
@@ -111,12 +160,12 @@ class Unit:
         #     self.speedX = 0
         #     self.speedY = 0
 
-        unit_locations[self.side].remove((self.x, self.y))
+        # unit_locations[self.side].remove((self.x, self.y))
 
         self.x += self.speedX
         self.y += self.speedY
 
-        unit_locations[self.side].append((self.x, self.y))
+        # unit_locations[self.side].append((self.x, self.y))
         self.body = (self.x, self.y)
 
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
@@ -133,7 +182,7 @@ class Infantry(Unit):
         self.speedX = self.default_speed
         self.speedY = self.default_speed
         self.range = 2
-        
+
     def draw(self, window):
         # pygame.draw.rect(window, self.color.value, self.body)
         pygame.draw.rect(window, self.color.value, pygame.Rect(self.x, self.y, self.size, self.size))
@@ -146,6 +195,9 @@ class Heavy(Unit):
         self.strength=30
         self.health=200
         self.min_speed=BLOCK_SIZE//10
+        # self.default_speed = BLOCK_SIZE//10
+        # self.speedX = self.default_speed
+        # self.speedY = self.default_speed
         self.range = 2
 
     def draw(self, window):
