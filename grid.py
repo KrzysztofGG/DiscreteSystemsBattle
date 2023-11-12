@@ -101,6 +101,7 @@ fill_arena_with_hills(4, 40, 60, arena)
 def drawPause():
     FONT = pygame.font.SysFont('arial', 200)
     pause_text = FONT.render("PAUSED", 1, Color.WHITE.value)
+    pause_text.set_alpha(10)
     WIN.blit(pause_text, (WIDTH/2 - pause_text.get_width()/2,    
                           HEIGHT/2 - pause_text.get_height()/2))
     pygame.display.update()

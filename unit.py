@@ -75,7 +75,11 @@ class Unit:
 
         #preety sure it can be done nicer
         SPEED_CHANGE_MODIFIER = 10
-        speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
+        if height_diff == 0:
+            speed_change = (self.max_speed - self.speed)/100
+            print(speed_change)
+        else:
+            speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
 
         return speed_change
     
@@ -112,7 +116,7 @@ class Unit:
             self.speedY = -self.speed * sinus
 
         #update strengh based on speed
-        self.strength = self.max_strength * (self.speed/self.max_speed)
+        self.strength = self.max_strength/2 + self.max_strength * (self.speed/self.max_speed)/2
 
     def update(self, arena, units_dict):
         
