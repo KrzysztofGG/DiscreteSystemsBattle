@@ -21,10 +21,9 @@ def create_hill_on_arena(centerX, centerY, radius, arena, arena_start_x, arena_s
 
 
 
-arena = np.zeros([18, 10])
-create_hill_on_arena(8, 5, 4, arena, 0.8)
-print(arena)
-
+A = np.array([[1,2, 3],
+              [5,6, 3]])
+print(A.shape)
 
 def create_hill_on_arena_og(centerX, centerY, radius, arr, arena, max_height):
     radius = (radius * 2) + 1
@@ -39,3 +38,4 @@ def create_hill_on_arena_og(centerX, centerY, radius, arr, arena, max_height):
                 height_increase = max_height - dist/radius
                 # arena[y, x].height += height_increase
                 arena[y, x] += height_increase
+

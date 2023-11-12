@@ -152,9 +152,6 @@ class Unit:
                 pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
 
         
-
-        
-        
         # adjusting speed if enemy nearby
         # if (arena[self.x//BLOCK_SIZE - self.range, self.y//BLOCK_SIZE].unit != None or 
         #     arena[self.x//BLOCK_SIZE + self.range, self.y//BLOCK_SIZE].unit != None or
@@ -163,12 +160,9 @@ class Unit:
         #     self.speedX = 0
         #     self.speedY = 0
 
-        # unit_locations[self.side].remove((self.x, self.y))
-
         self.x += self.speedX
         self.y += self.speedY
 
-        # unit_locations[self.side].append((self.x, self.y))
         self.body = (self.x, self.y)
 
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
@@ -181,9 +175,6 @@ class Infantry(Unit):
         self.size=BLOCK_SIZE
         self.strength=10
         self.health=100
-        self.default_speed = BLOCK_SIZE//5
-        self.speedX = self.default_speed
-        self.speedY = self.default_speed
         self.range = 2
 
     def draw(self, window):
@@ -198,9 +189,6 @@ class Heavy(Unit):
         self.strength=30
         self.health=200
         self.min_speed=BLOCK_SIZE//10
-        # self.default_speed = BLOCK_SIZE//10
-        # self.speedX = self.default_speed
-        # self.speedY = self.default_speed
         self.range = 2
 
     def draw(self, window):
@@ -223,7 +211,6 @@ class Cavalry(Unit):
     def update(self, arena, unit_locations):
         super().update(arena, unit_locations)
         offsetTriangle(self.triangle, self.speedX, self.speedY)
-
 
     def draw(self, window):
         drawTriangle(self.triangle, self.color.value)
@@ -271,22 +258,3 @@ def offsetTriangle(triangle, offsetx, offsety):
     x=(triangle.p1[0]+triangle.p2[0]+triangle.p3[0])/3
     y=(triangle.p1[1]+triangle.p2[1]+triangle.p3[1])/3
     return (x,y)
-# ADJACENT = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-
-# def find(data: np.array, start: tuple, searched_side):
-  
-#   queue = deque()
-#   queue.append(start)
-
-#   while queue:
-#     pos = queue.popleft()
-#     if data[pos[0], pos[1]] == searched_side:
-#       print(pos[0], pos[1])
-#       return (pos[0], pos[1])
-#     else:
-#       for dxy in ADJACENT:
-#         (x, y) = (pos[0] + dxy[0], pos[1] + dxy[1])
-#         if x >= 0 and x < data.shape[0] and y >= 0 and y < data.shape[1]:
-#           queue.append((x,y))
-
-#   return None

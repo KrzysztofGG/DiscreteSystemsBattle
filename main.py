@@ -59,7 +59,6 @@ def main():
                 paused = not paused
             elif event.type == MOVEMENT_EVENT:
                 if not paused:
-                    
                     if random.randint(0, 1) == 0:
                         for u in grid.units_dict[Side.GREEN]:
                             u.update(grid.arena, grid.units_dict)
@@ -70,30 +69,17 @@ def main():
                             u.update(grid.arena, grid.units_dict)
                         for u in grid.units_dict[Side.GREEN]:
                             u.update(grid.arena, grid.units_dict)
-
-                    # for s in grid.units_dict.keys():
-                    #     for u in grid.units_dict[s]:
-                    #         u.update(grid.arena, grid.units_dict)
-                    # for u in units:
-                    #     u.update(grid.arena,  grid.units_dict)
                     
-                   
+        grid.drawGrid()
+        for s in grid.units_dict.keys():
+            for u in grid.units_dict[s]:
+                u.draw(WIN)
+        grid.draw_all_units_details()
+
         if paused:
             grid.drawPause()
-            for s in grid.units_dict.keys():
-                for u in grid.units_dict[s]:
-                    if pygame.Rect(u.x-u.size/2, u.y-u.size/2, u.size*2, u.size*2).collidepoint(pygame.mouse.get_pos()):
-                        u.show_unit_details(grid.arena)
-        else:
-            grid.drawGrid()
-            for s in grid.units_dict.keys():
-                for u in grid.units_dict[s]:
-                    
-                    u.draw(WIN)
-            # for u in units:
-            #     u.draw(WIN)
 
-            pygame.display.update()
+        pygame.display.update()
             
 if __name__ == "__main__":
     main()

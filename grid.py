@@ -47,7 +47,7 @@ def create_circle_hill_on_arena(centerX, centerY, radius, arena, max_height):
               xDiff = x - centerX
               if xDiff * xDiff <= threshold:
                   dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
-                  height_increase = max_height - max_height*(dist/radius) + random.uniform(0, 0.03)
+                  height_increase = max_height - max_height*(dist/radius)
 
                   arena[y, x].height += height_increase
                   if arena[y, x].height > 1:
@@ -83,34 +83,39 @@ def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
 
         first_range = (n_hills - current_hill)/n_hills
         second_range = (n_hills - current_hill + 1)/n_hills
+
         x = random.randint(int(arena.shape[1] * first_range), int(arena.shape[1] * second_range))
         y = random.randint(min_radius/2, arena.shape[0] - min_radius/2)
+
         if x > arena.shape[1] or y > arena.shape[0]:
             continue
         else:
             radius = random.randint(min_radius, max_radius)
-            max_height = random.uniform(0.3, 0.6)
+            max_height = random.uniform(0.6, 0.8)
             create_circle_hill_on_arena(x, y, radius, arena, max_height)
             current_hill -= 1
+    
+        # for y in range(0, arena.shape[0]):
+        #     for x in range(0, arena.shape[1]):
+        #         arena[y,x].updateColor()
 
 #deprecated will be using units_dict
 # unit_locations = {Side.RED: [], Side.GREEN: []}
 units_dict = {Side.RED: [], Side.GREEN: []}
 
-arena = np.zeros((WIDTH//BLOCK_SIZE, HEIGHT//BLOCK_SIZE), dtype=object)
-for x in range(0, arena.shape[0]):
-    for y in range(0, arena.shape[1]):
-        arena[x, y] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
+arena = np.zeros((HEIGHT//BLOCK_SIZE, WIDTH//BLOCK_SIZE), dtype=object)
+for y in range(0, arena.shape[0]):
+    for x in range(0, arena.shape[1]):
+        arena[y, x] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
 
-fill_arena_with_hills(4, 40, 60, arena)
+
+fill_arena_with_hills(3, 40, 60, arena)
 
 def drawPause():
     FONT = pygame.font.SysFont('arial', 200)
     pause_text = FONT.render("PAUSED", 1, Color.WHITE.value)
-    pause_text.set_alpha(10)
     WIN.blit(pause_text, (WIDTH/2 - pause_text.get_width()/2,    
                           HEIGHT/2 - pause_text.get_height()/2))
-    pygame.display.update()
 
 def draw_end_screen():
     FONT = pygame.font.SysFont('arial', 200)
@@ -122,17 +127,24 @@ def draw_end_screen():
     text_render = FONT.render(text, 1, Color.WHITE.value)
     WIN.blit(text_render, (WIDTH/2 - text_render.get_width()/2,
                            HEIGHT/2 - text_render.get_height()/2))
-    pygame.display.update()
     pygame.time.delay(1000)
 
-
+def draw_all_units_details():
+    for s in units_dict.keys():
+        for u in units_dict[s]:
+            if pygame.Rect(u.x-u.size/2, u.y-u.size/2, u.size*2, u.size*2).collidepoint(pygame.mouse.get_pos()):
+                u.show_unit_details(arena)
     
 def drawGrid():
-    for x in range(0, arena.shape[0]):
-        for y in range(0, arena.shape[1]):
-            arena[x, y].draw(WIN)
+
+    # for x in range(0, arena.shape[0]):
+    #     for y in range(0, arena.shape[1]):
+    #         arena[y, x].draw(WIN)
+    for row in arena:
+        for val in row:
+            val.draw(WIN)
             
-    for x in range(0, WIDTH, BLOCK_SIZE):
-        for y in range(0, HEIGHT, BLOCK_SIZE):
+    for y in range(0, HEIGHT, BLOCK_SIZE):
+        for x in range(0, WIDTH, BLOCK_SIZE):
             rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
             pygame.draw.rect(WIN, Color.GRAY.value, rect, 1)
