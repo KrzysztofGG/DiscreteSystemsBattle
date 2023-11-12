@@ -31,36 +31,20 @@ def main():
 
     paused = False
 
-    unit_r = Heavy(Color.RED,350,650, Side.RED)
-    unit_r2 = Heavy(Color.RED,650,600, Side.RED)
-    unit_b = Heavy(Color.BLUE,600,570, Side.GREEN)
-    unit_c = Cavalry(Color.BLUE,380,400, Side.GREEN)
-    unit_b1 = Heavy(Color.BLUE,410,500, Side.GREEN)
-    unit_c1 = Cavalry(Color.RED,600,500, Side.RED)
-    units = [unit_r, unit_b, unit_c, unit_r2,unit_b1,unit_c1]
-    # grid.unit_locations[Side.RED].append((unit_r.x//BLOCK_SIZE, unit_r.y//BLOCK_SIZE))
-    # grid.unit_locations[Side.GREEN].append((unit_b.x//BLOCK_SIZE, unit_b.y//BLOCK_SIZE))
-    # grid.unit_locations[Side.GREEN].append((unit_c.x//BLOCK_SIZE, unit_c.y//BLOCK_SIZE))
-    grid.unit_locations[Side.RED].append((unit_r.x, unit_r.y))
-    grid.unit_locations[Side.RED].append((unit_r2.x, unit_r2.y))
-    grid.unit_locations[Side.GREEN].append((unit_b.x, unit_b.y))
-    grid.unit_locations[Side.GREEN].append((unit_c.x, unit_c.y))
-    grid.unit_locations[Side.GREEN].append((unit_b1.x, unit_b1.y))
-    grid.unit_locations[Side.RED].append((unit_c1.x, unit_c1.y))
-
-
 
     unit_r = Infantry(Color.RED,350,550, Side.RED)
     unit_r2 = Heavy(Color.RED,650,500, Side.RED)
     unit_b = Heavy(Color.BLUE,600,570, Side.GREEN)
     unit_c = Infantry(Color.BLUE,380,400, Side.GREEN)
-    # unit_b = Heavy(Color.BLUE,410,500, Side.GREEN)
-    # unit_c = Cavalry(Color.BLACK,600,500, Side.GREEN)
+    unit_b1 = Heavy(Color.BLUE,410,500, Side.GREEN)
+    unit_c1 = Cavalry(Color.RED,600,500, Side.RED)
 
     grid.units_dict[Side.RED].append(unit_r)
     grid.units_dict[Side.RED].append(unit_r2)
     grid.units_dict[Side.GREEN].append(unit_b)
     grid.units_dict[Side.GREEN].append(unit_c)
+    grid.units_dict[Side.GREEN].append(unit_b1)
+    grid.units_dict[Side.RED].append(unit_c1)
     
     while True:
         CLOCK.tick(FPS)
