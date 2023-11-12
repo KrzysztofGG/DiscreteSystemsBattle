@@ -14,7 +14,7 @@ pygame.init()
 
 pygame.mixer.music.load(os.path.join('Assets', 'background-music.mp3'))
 pygame.mixer.music.set_volume(0.2)
-pygame.mixer.music.play()
+# pygame.mixer.music.play()
 
 FONT = pygame.font.SysFont('arial', 200)
 
@@ -37,16 +37,6 @@ def main():
     unit_c = Infantry(Color.BLUE,380,400, Side.GREEN)
     # unit_b = Heavy(Color.BLUE,410,500, Side.GREEN)
     # unit_c = Cavalry(Color.BLACK,600,500, Side.GREEN)
-
-    # units = [unit_r, unit_b, unit_c, unit_r2]
-
-    # grid.unit_locations[Side.RED].append((unit_r.x//BLOCK_SIZE, unit_r.y//BLOCK_SIZE))
-    # grid.unit_locations[Side.GREEN].append((unit_b.x//BLOCK_SIZE, unit_b.y//BLOCK_SIZE))
-    # grid.unit_locations[Side.GREEN].append((unit_c.x//BLOCK_SIZE, unit_c.y//BLOCK_SIZE))
-    # grid.unit_locations[Side.RED].append((unit_r.x, unit_r.y))
-    # grid.unit_locations[Side.RED].append((unit_r2.x, unit_r2.y))
-    # grid.unit_locations[Side.GREEN].append((unit_b.x, unit_b.y))
-    # grid.unit_locations[Side.GREEN].append((unit_c.x, unit_c.y))
 
     grid.units_dict[Side.RED].append(unit_r)
     grid.units_dict[Side.RED].append(unit_r2)
@@ -87,11 +77,16 @@ def main():
                 
                     
         if paused:
+            for s in grid.units_dict.keys():
+                for u in grid.units_dict[s]:
+                    if pygame.Rect(u.x-u.size/2, u.y-u.size/2, u.size*2, u.size*2).collidepoint(pygame.mouse.get_pos()):
+                        u.show_unit_details()
             grid.drawPause()
         else:
             grid.drawGrid()
             for s in grid.units_dict.keys():
                 for u in grid.units_dict[s]:
+                    
                     u.draw(WIN)
             # for u in units:
             #     u.draw(WIN)

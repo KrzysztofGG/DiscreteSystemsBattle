@@ -4,6 +4,7 @@ from math import sin, cos, pi, radians, sqrt, pow
 from utils import *
 import random
 import os
+from color import Color
 
 class Side(Enum):
     RED=1
@@ -37,6 +38,24 @@ class Unit:
     
     def get_location(self):
         return (self.x, self.y)
+    
+    def show_unit_details(self):
+        FONT = pygame.font.SysFont('arial', 10)
+        box_width, box_height = 60, 50
+
+        rect = pygame.draw.rect(WIN, Color.WHITE.value, (self.x, self.y, box_width, box_height))
+        text1 = f'Health: {int(self.health)}'
+        text2 = f'Strength: {int(self.strength)}'
+        text3 = f'Speed: {int(self.speed)}'
+
+        text_render1 = FONT.render(text1, 1, Color.BLACK.value)
+        text_render2 = FONT.render(text2, 1, Color.BLACK.value)
+        text_render3 = FONT.render(text3, 1, Color.BLACK.value)
+
+        WIN.blit(text_render1, (rect.x, rect.y))
+        WIN.blit(text_render2, (rect.x, rect.y + text_render1.get_height()))
+        WIN.blit(text_render3, (rect.x, rect.y + text_render2.get_height() * 2))
+
     
     def hit_enemy(self, enemy, units_dict):
         enemy.health -= self.strength + random.uniform(0, self.strength)
@@ -122,6 +141,8 @@ class Unit:
             self.speedY = 0
             if self.hit_enemy(enemy, units_dict):
                 pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
+
+        
 
         
         

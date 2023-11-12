@@ -116,7 +116,9 @@ def draw_end_screen():
     WIN.blit(text_render, (WIDTH/2 - text_render.get_width()/2,
                            HEIGHT/2 - text_render.get_height()/2))
     pygame.display.update()
-    pygame.time.delay(3000)
+    pygame.time.delay(1000)
+
+
     
 def drawGrid():
     for x in range(0, arena.shape[0]):
