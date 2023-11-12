@@ -12,6 +12,7 @@ class Side(Enum):
     
 pygame.mixer.init()
 DEATH_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'death-sound.mp3'))
+DEATH_SOUND.set_volume(0.2)
 
 GAME_ENDS_EVENT = pygame.USEREVENT + 2
 
@@ -26,7 +27,7 @@ class Unit:
         self.color = color
         self.side = side
         self.max_speed = BLOCK_SIZE//2
-        self.min_speed = BLOCK_SIZE//2
+        self.min_speed = BLOCK_SIZE//6
         self.speed = (self.max_speed + self.min_speed)//2
         self.speedX = self.max_speed
         self.speedY = self.max_speed
@@ -41,16 +42,16 @@ class Unit:
     
     def show_unit_details(self):
         FONT = pygame.font.SysFont('arial', 10)
-        box_width, box_height = 60, 50
+        box_width, box_height = 60, 40
 
         rect = pygame.draw.rect(WIN, Color.WHITE.value, (self.x, self.y, box_width, box_height))
         text1 = f'Health: {int(self.health)}'
         text2 = f'Strength: {int(self.strength)}'
         text3 = f'Speed: {int(self.speed)}'
 
-        text_render1 = FONT.render(text1, 1, Color.BLACK.value)
-        text_render2 = FONT.render(text2, 1, Color.BLACK.value)
-        text_render3 = FONT.render(text3, 1, Color.BLACK.value)
+        text_render1 = FONT.render(text1, 1, self.color.value)
+        text_render2 = FONT.render(text2, 1, self.color.value)
+        text_render3 = FONT.render(text3, 1, self.color.value)
 
         WIN.blit(text_render1, (rect.x, rect.y))
         WIN.blit(text_render2, (rect.x, rect.y + text_render1.get_height()))
@@ -137,6 +138,7 @@ class Unit:
         
         if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
             pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
+            self.speed = 0
             self.speedX = 0
             self.speedY = 0
             if self.hit_enemy(enemy, units_dict):

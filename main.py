@@ -77,11 +77,11 @@ def main():
                 
                     
         if paused:
+            grid.drawPause()
             for s in grid.units_dict.keys():
                 for u in grid.units_dict[s]:
                     if pygame.Rect(u.x-u.size/2, u.y-u.size/2, u.size*2, u.size*2).collidepoint(pygame.mouse.get_pos()):
                         u.show_unit_details()
-            grid.drawPause()
         else:
             grid.drawGrid()
             for s in grid.units_dict.keys():
