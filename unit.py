@@ -20,7 +20,8 @@ class Unit:
         self.x = x
         self.y = y
         self.health = 100
-        self.strength = 10
+        self.max_strength = 20
+        self.strength = self.max_strength
         self.color = color
         self.side = side
         self.max_speed = BLOCK_SIZE//2
@@ -89,6 +90,9 @@ class Unit:
             self.speedY = 0
         else:
             self.speedY = -self.speed * sinus
+
+        #update strengh based on speed
+        self.strength = self.max_strength * (self.speed/self.max_speed)
 
     def update(self, arena, units_dict):
         
