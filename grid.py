@@ -65,7 +65,6 @@ def create_elipse_hill_on_arena(centerX, centerY, radiusX, radiusY, arena, max_h
                 if eq1 + eq2 - 1 < 0:
                     
                     #need to find a smart way of distributing color evenly
-
                     # dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
                     # height_increase = max_height - dist/radius + random.uniform(0, 0.03)
                     pass

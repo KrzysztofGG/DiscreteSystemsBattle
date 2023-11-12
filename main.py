@@ -77,8 +77,7 @@ def main():
                     # for u in units:
                     #     u.update(grid.arena,  grid.units_dict)
                     
-                
-                    
+                   
         if paused:
             grid.drawPause()
             for s in grid.units_dict.keys():

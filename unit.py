@@ -81,10 +81,8 @@ class Unit:
         SPEED_CHANGE_MODIFIER = 10
         if height_diff == 0:
             speed_change = (self.max_speed - self.speed)/100
-            # print("static", speed_change)
         else:
             speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
-            # print("hill", speed_change)
 
         return speed_change
     
