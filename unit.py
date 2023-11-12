@@ -1,29 +1,31 @@
 import pygame
 from enum import Enum
-from math import sin, cos, pi, radians
+from math import sin, cos, pi, radians, sqrt, pow
 from utils import *
-import numpy as np
-from collections import deque
-from math import sqrt, pow
+import random
+import os
 
 class Side(Enum):
     RED=1
     GREEN=2
+    
+pygame.mixer.init()
+DEATH_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'death-sound.mp3'))
 
+GAME_ENDS_EVENT = pygame.USEREVENT + 2
 
 class Unit:
     def __init__(self, color, x, y, side, id=0):
         self.id = id
         self.x = x
         self.y = y
+        self.health = 100
+        self.strength = 10
         self.color = color
         self.side = side
-        # self.default_speed = BLOCK_SIZE//5
-        # self.speedX = self.default_speed
-        # self.speedY = self.default_speed
-        self.max_speed = BLOCK_SIZE//5
-        self.min_speed = BLOCK_SIZE//10
-        self.speed = self.max_speed 
+        self.max_speed = BLOCK_SIZE//2
+        self.min_speed = BLOCK_SIZE//2
+        self.speed = (self.max_speed + self.min_speed)//2
         self.speedX = self.max_speed
         self.speedY = self.max_speed
         self.range = 1
@@ -32,6 +34,16 @@ class Unit:
     def distance(self, a, b):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
     
+    def get_location(self):
+        return (self.x, self.y)
+    
+    def hit_enemy(self, enemy, units_dict):
+        enemy.health -= self.strength + random.uniform(0, self.strength//2)
+        if enemy.health <= 0:
+            DEATH_SOUND.play()
+            units_dict[enemy.side].remove(enemy)
+        return len(units_dict[enemy.side]) == 0
+
     def count_speed_change(self, arena): #based on changing height of terrain
         
         future_x = int((self.x + self.speedX)//BLOCK_SIZE)
@@ -78,7 +90,7 @@ class Unit:
         else:
             self.speedY = -self.speed * sinus
 
-    def update(self, arena, unit_locations):
+    def update(self, arena, units_dict):
         
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
 
@@ -87,17 +99,25 @@ class Unit:
             enemy_side = Side.RED
         else:
             enemy_side = Side.GREEN
-        enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
+        # enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
+        # units_locations = list(map(lambda u: (u.x, u.y), units_dict[enemy_side]))
+        if len(units_dict[enemy_side]) == 0:
+            self.speedX = 0
+            self.speedY = 0
+            return 
         
+        enemy = min(units_dict[enemy_side], key = lambda e: self.distance(e.get_location(), (self.x, self.y)))
+        enemy_x, enemy_y = enemy.x, enemy.y
+        # enemy_x, enemy_y = min(units_locations, key = lambda coords: self.distance(coords, (self.x, self.y)))
+
         self.count_speed(enemy_x, enemy_y, arena)
         
-        
-
-
         if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
             pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
             self.speedX = 0
             self.speedY = 0
+            if self.hit_enemy(enemy, units_dict):
+                pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
 
         
         
@@ -109,12 +129,12 @@ class Unit:
         #     self.speedX = 0
         #     self.speedY = 0
 
-        unit_locations[self.side].remove((self.x, self.y))
+        # unit_locations[self.side].remove((self.x, self.y))
 
         self.x += self.speedX
         self.y += self.speedY
 
-        unit_locations[self.side].append((self.x, self.y))
+        # unit_locations[self.side].append((self.x, self.y))
         self.body = (self.x, self.y)
 
         # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
@@ -127,9 +147,9 @@ class Infantry(Unit):
         self.size=BLOCK_SIZE
         self.strength=10
         self.health=100
-        self.default_speed = BLOCK_SIZE//5
-        self.speedX = self.default_speed
-        self.speedY = self.default_speed
+        # self.default_speed = BLOCK_SIZE//5
+        # self.speedX = self.default_speed
+        # self.speedY = self.default_speed
         self.range = 1
         
     def draw(self, window):
@@ -143,9 +163,9 @@ class Heavy(Unit):
         self.size=BLOCK_SIZE//2
         self.strength=30
         self.health=200
-        self.default_speed = BLOCK_SIZE//10
-        self.speedX = self.default_speed
-        self.speedY = self.default_speed
+        # self.default_speed = BLOCK_SIZE//10
+        # self.speedX = self.default_speed
+        # self.speedY = self.default_speed
         self.range = 2
 
     def draw(self, window):
