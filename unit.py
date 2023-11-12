@@ -55,7 +55,6 @@ class Unit:
         text_render3 = FONT.render(text3, 1, self.color.value)
         text_render4 = FONT.render(text4, 1, self.color.value)
         
-
         WIN.blit(text_render1, (rect.x, rect.y))
         WIN.blit(text_render2, (rect.x, rect.y + text_render1.get_height()))
         WIN.blit(text_render3, (rect.x, rect.y + text_render2.get_height() * 2))

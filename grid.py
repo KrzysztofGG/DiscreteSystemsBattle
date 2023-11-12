@@ -95,9 +95,6 @@ def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
             create_circle_hill_on_arena(x, y, radius, arena, max_height)
             current_hill -= 1
     
-        # for y in range(0, arena.shape[0]):
-        #     for x in range(0, arena.shape[1]):
-        #         arena[y,x].updateColor()
 
 #deprecated will be using units_dict
 # unit_locations = {Side.RED: [], Side.GREEN: []}

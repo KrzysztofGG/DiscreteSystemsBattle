@@ -23,7 +23,6 @@ pygame.time.set_timer(MOVEMENT_EVENT, 200)
 
 
 
-
 def main():
     pygame.display.set_caption("Battle Simulator")
     CLOCK = pygame.time.Clock()
