@@ -10,8 +10,10 @@ class GroundElement:
         self.x = x
         self.y = y
         self.border = BLOCK_SIZE
-        self.height = 0.2
-        self.color = (0, min(255, int(255*(self.height + 0.1))), 0)
+        # self.height = 0.2
+        self.height = 0
+        # self.color = (0, min(255, int(255*(self.height + 0.1))), 0)
+        self.color = (0, 255, 0)
         self.unit = None
         self.body = pygame.Rect(self.x, self.y, self.border, self.border)
     
@@ -19,8 +21,13 @@ class GroundElement:
         pygame.draw.rect(window, self.color, self.body)
     
     def updateColor(self):
-        green_value = min(255, int(255*(self.height + 0.1)))
-        self.color = (0, green_value, 0)
+        pct_diff = 1.0 - self.height
+        red_color = min(255, self.height * 2 * 255)
+        green_color = min(255, pct_diff * 2 * 255)
+        col = (red_color, green_color, 0)
+        self.color = col
+        # green_value = min(255, int(255*(self.height + 0.1)))
+        # self.color = (0, green_value, 0)
 
     # def update():
 

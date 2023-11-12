@@ -40,22 +40,26 @@ class Unit:
     def get_location(self):
         return (self.x, self.y)
     
-    def show_unit_details(self):
+    def show_unit_details(self, arena):
         FONT = pygame.font.SysFont('arial', 10)
-        box_width, box_height = 60, 40
+        box_width, box_height = 60, 50
 
         rect = pygame.draw.rect(WIN, Color.WHITE.value, (self.x, self.y, box_width, box_height))
         text1 = f'Health: {int(self.health)}'
         text2 = f'Strength: {int(self.strength)}'
         text3 = f'Speed: {int(self.speed)}'
+        text4 = f'Height: {arena[int(self.y//BLOCK_SIZE), int(self.x//BLOCK_SIZE)].height:.2f}'
 
         text_render1 = FONT.render(text1, 1, self.color.value)
         text_render2 = FONT.render(text2, 1, self.color.value)
         text_render3 = FONT.render(text3, 1, self.color.value)
+        text_render4 = FONT.render(text4, 1, self.color.value)
+        
 
         WIN.blit(text_render1, (rect.x, rect.y))
         WIN.blit(text_render2, (rect.x, rect.y + text_render1.get_height()))
         WIN.blit(text_render3, (rect.x, rect.y + text_render2.get_height() * 2))
+        WIN.blit(text_render4, (rect.x, rect.y + text_render2.get_height() * 3))
 
     
     def hit_enemy(self, enemy, units_dict):
@@ -77,9 +81,10 @@ class Unit:
         SPEED_CHANGE_MODIFIER = 10
         if height_diff == 0:
             speed_change = (self.max_speed - self.speed)/100
-            print(speed_change)
+            # print("static", speed_change)
         else:
             speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
+            # print("hill", speed_change)
 
         return speed_change
     
