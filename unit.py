@@ -39,7 +39,7 @@ class Unit:
         return (self.x, self.y)
     
     def hit_enemy(self, enemy, units_dict):
-        enemy.health -= self.strength + random.uniform(0, self.strength//2)
+        enemy.health -= self.strength + random.uniform(0, self.strength)
         if enemy.health <= 0:
             DEATH_SOUND.play()
             units_dict[enemy.side].remove(enemy)
@@ -51,7 +51,7 @@ class Unit:
         future_y = int((self.y + self.speedY)//BLOCK_SIZE)
         current_x = int(self.x//BLOCK_SIZE)
         current_y = int(self.y//BLOCK_SIZE)
-        height_diff = arena[future_y, future_x].height - arena[current_y, current_x ].height
+        height_diff = arena[future_y, future_x].height - arena[current_y, current_x].height
 
         #preety sure it can be done nicer
         SPEED_CHANGE_MODIFIER = 10

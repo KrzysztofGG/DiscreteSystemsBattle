@@ -66,9 +66,21 @@ def main():
                 paused = not paused
             elif event.type == MOVEMENT_EVENT:
                 if not paused:
-                    for s in grid.units_dict.keys():
-                        for u in grid.units_dict[s]:
+                    
+                    if random.randint(0, 1) == 0:
+                        for u in grid.units_dict[Side.GREEN]:
                             u.update(grid.arena, grid.units_dict)
+                        for u in grid.units_dict[Side.RED]:
+                            u.update(grid.arena, grid.units_dict)
+                    else:
+                        for u in grid.units_dict[Side.RED]:
+                            u.update(grid.arena, grid.units_dict)
+                        for u in grid.units_dict[Side.GREEN]:
+                            u.update(grid.arena, grid.units_dict)
+
+                    # for s in grid.units_dict.keys():
+                    #     for u in grid.units_dict[s]:
+                    #         u.update(grid.arena, grid.units_dict)
                     # for u in units:
                     #     u.update(grid.arena,  grid.units_dict)
                     
