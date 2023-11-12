@@ -31,17 +31,20 @@ def main():
 
     paused = False
 
+
     unit_r = Infantry(Color.RED,350,550, Side.RED)
     unit_r2 = Heavy(Color.RED,650,500, Side.RED)
     unit_b = Heavy(Color.BLUE,600,570, Side.GREEN)
     unit_c = Infantry(Color.BLUE,380,400, Side.GREEN)
-    # unit_b = Heavy(Color.BLUE,410,500, Side.GREEN)
-    # unit_c = Cavalry(Color.BLACK,600,500, Side.GREEN)
+    unit_b1 = Heavy(Color.BLUE,410,500, Side.GREEN)
+    unit_c1 = Cavalry(Color.RED,600,500, Side.RED)
 
     grid.units_dict[Side.RED].append(unit_r)
     grid.units_dict[Side.RED].append(unit_r2)
     grid.units_dict[Side.GREEN].append(unit_b)
     grid.units_dict[Side.GREEN].append(unit_c)
+    grid.units_dict[Side.GREEN].append(unit_b1)
+    grid.units_dict[Side.RED].append(unit_c1)
     
     while True:
         CLOCK.tick(FPS)

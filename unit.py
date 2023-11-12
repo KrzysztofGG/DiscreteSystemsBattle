@@ -183,11 +183,11 @@ class Infantry(Unit):
         self.size=BLOCK_SIZE
         self.strength=10
         self.health=100
-        # self.default_speed = BLOCK_SIZE//5
-        # self.speedX = self.default_speed
-        # self.speedY = self.default_speed
-        self.range = 1
-        
+        self.default_speed = BLOCK_SIZE//5
+        self.speedX = self.default_speed
+        self.speedY = self.default_speed
+        self.range = 2
+
     def draw(self, window):
         # pygame.draw.rect(window, self.color.value, self.body)
         pygame.draw.rect(window, self.color.value, pygame.Rect(self.x, self.y, self.size, self.size))
@@ -199,6 +199,7 @@ class Heavy(Unit):
         self.size=BLOCK_SIZE//2
         self.strength=30
         self.health=200
+        self.min_speed=BLOCK_SIZE//10
         # self.default_speed = BLOCK_SIZE//10
         # self.speedX = self.default_speed
         # self.speedY = self.default_speed
@@ -215,30 +216,19 @@ class Cavalry(Unit):
         self.size=BLOCK_SIZE
         self.strength=60
         self.health=150
-        self.default_speed = BLOCK_SIZE
-        self.speedX = self.default_speed
-        self.speedY = self.default_speed
+        self.max_speed=BLOCK_SIZE//2
+        self.min_speed=BLOCK_SIZE//4
         self.range = 2
-        self.body=makeTriangle(self.size, 45, 0)
-        offsetTriangle(self.body, self.x, self.y)
-
-    # def update(self,arena):
-    #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit != None
-    #     if arena[self.x//BLOCK_SIZE -2, self.y//BLOCK_SIZE].unit != None or arena[self.x//BLOCK_SIZE + 2, self.y//BLOCK_SIZE].unit != None:
-    #         self.speed = 0
-
-    #     self.x-=self.speed
-    #     offsetTriangle(self.body, -self.speed,0)
-       
-    #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
+        self.triangle=makeTriangle(self.size, 45, 0)
+        self.body=offsetTriangle(self.triangle, self.x, self.y)
 
     def update(self, arena, unit_locations):
         super().update(arena, unit_locations)
-        offsetTriangle(self.body, -self.speedX,0)
+        offsetTriangle(self.triangle, self.speedX, self.speedY)
 
 
     def draw(self, window):
-        drawTriangle(self.body, self.color.value)
+        drawTriangle(self.triangle, self.color.value)
 
 
 class Triangle:
@@ -280,7 +270,9 @@ def offsetTriangle(triangle, offsetx, offsety):
     triangle.p1[0] += offsetx;  triangle.p1[1] += offsety
     triangle.p2[0] += offsetx;  triangle.p2[1] += offsety
     triangle.p3[0] += offsetx;  triangle.p3[1] += offsety
-
+    x=(triangle.p1[0]+triangle.p2[0]+triangle.p3[0])/3
+    y=(triangle.p1[1]+triangle.p2[1]+triangle.p3[1])/3
+    return (x,y)
 # ADJACENT = [(0, 1), (1, 0), (0, -1), (-1, 0)]
 
 # def find(data: np.array, start: tuple, searched_side):
