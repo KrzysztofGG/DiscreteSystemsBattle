@@ -11,8 +11,6 @@ class Side(Enum):
     GREEN=2
 
 
-
-
 class Unit:
     def __init__(self, color, x, y, side, id=0):
         self.id = id
@@ -24,7 +22,7 @@ class Unit:
         # self.speedX = self.default_speed
         # self.speedY = self.default_speed
         self.max_speed = BLOCK_SIZE//5
-        self.min_speed = BLOCK_SIZE//20
+        self.min_speed = BLOCK_SIZE//10
         self.speed = self.max_speed 
         self.speedX = self.max_speed
         self.speedY = self.max_speed
