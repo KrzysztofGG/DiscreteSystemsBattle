@@ -163,13 +163,10 @@ class Unit:
         self.y += self.speedY
 
         self.body = (self.x, self.y)
-
-        # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = self.side
         
 
 class Infantry(Unit):
     def __init__(self, color, x, y, side, id=0):
-        # Unit.__init__(self,color,x,y)
         super().__init__(color, x, y, side, id)
         self.size=BLOCK_SIZE
         self.strength=10
@@ -177,7 +174,6 @@ class Infantry(Unit):
         self.range = 2
 
     def draw(self, window):
-        # pygame.draw.rect(window, self.color.value, self.body)
         pygame.draw.rect(window, self.color.value, pygame.Rect(self.x, self.y, self.size, self.size))
 
 

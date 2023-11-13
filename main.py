@@ -29,7 +29,7 @@ def main():
     WIN.fill(Color.LIGHTGREEN.value)
 
     paused = False
-
+    ended = False
 
     unit_r = Infantry(Color.RED,350,550, Side.RED)
     unit_r2 = Heavy(Color.RED,650,500, Side.RED)
@@ -53,7 +53,8 @@ def main():
                 sys.exit()
             elif event.type == GAME_ENDS_EVENT:
                 grid.draw_end_screen()
-                break
+                ended = True
+                # break
             elif event.type == KEYDOWN and event.key == K_SPACE:
                 paused = not paused
             elif event.type == MOVEMENT_EVENT:
@@ -68,15 +69,16 @@ def main():
                             u.update(grid.arena, grid.units_dict)
                         for u in grid.units_dict[Side.GREEN]:
                             u.update(grid.arena, grid.units_dict)
-                    
-        grid.drawGrid()
-        for s in grid.units_dict.keys():
-            for u in grid.units_dict[s]:
-                u.draw(WIN)
-        grid.draw_all_units_details()
 
-        if paused:
-            grid.drawPause()
+        if not ended:      
+            grid.drawGrid()
+            for s in grid.units_dict.keys():
+                for u in grid.units_dict[s]:
+                    u.draw(WIN)
+            grid.draw_all_units_details()
+
+            if paused:
+                grid.drawPause()
 
         pygame.display.update()
             
