@@ -85,7 +85,7 @@ def fill_arena_with_hills(n_hills, min_radius, max_radius, arena):
         second_range = (n_hills - current_hill + 1)/n_hills
 
         x = random.randint(int(arena.shape[1] * first_range), int(arena.shape[1] * second_range))
-        y = random.randint(min_radius/2, arena.shape[0] - min_radius/2)
+        y = random.randint(int(min_radius/2), int(arena.shape[0] - min_radius/2))
 
         if x > arena.shape[1] or y > arena.shape[0]:
             continue
