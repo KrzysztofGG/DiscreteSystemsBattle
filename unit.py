@@ -78,7 +78,7 @@ class Unit:
 
         #preety sure it can be done nicer
         SPEED_CHANGE_MODIFIER = 10
-        if height_diff == 0:
+        if height_diff < 0.05:
             speed_change = (self.max_speed - self.speed)/100
         else:
             speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
@@ -121,8 +121,6 @@ class Unit:
         self.strength = self.max_strength/2 + self.max_strength * (self.speed/self.max_speed)/2
 
     def update(self, arena, units_dict):
-        
-        # arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE].unit = None
 
         # finding nearest enemy
         if self.side == Side.GREEN:

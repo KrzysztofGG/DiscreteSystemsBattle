@@ -1,10 +1,10 @@
-import pygame
 import numpy as np
 from color import Color
 from utils import *
 from unit import Side
 from math import sqrt, pow
 import random
+
 class GroundElement:
     def __init__(self, x, y):
         self.x = x
@@ -105,9 +105,6 @@ class Grid():
         for y in range(0, self.arena.shape[0]):
             for x in range(0, self.arena.shape[1]):
                 self.arena[y, x].draw(WIN)
-        # for row in arena:
-        #     for val in row:
-        #         val.draw(WIN)
                 
         for y in range(0, HEIGHT, BLOCK_SIZE):
             for x in range(0, WIDTH, BLOCK_SIZE):

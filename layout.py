@@ -16,9 +16,9 @@ def choose_units_layout():
         ],
         [
             sg.Text("X coordinate in range 0 - 179"),
-            sg.In(enable_events=True, key='-UNIT_X-', size=(3, 1)),
+            sg.In(enable_events=True, key='-UNIT_X-', size=(3, 1), default_text="1"),
             sg.Text("Y coordinate in range 0 - 99"),
-            sg.In(enable_events=True, key='-UNIT_Y-', size=(3, 1))
+            sg.In(enable_events=True, key='-UNIT_Y-', size=(3, 1), default_text="1")
         ],
         [
             sg.Button("Submit Unit", key='-SUBMIT_UNIT-'),
@@ -37,7 +37,7 @@ def choose_units_layout():
     window = sg.Window("Units layout", layout)
 
     layout_units_locations = []
-    units_dict = {Side.RED: [], Side.GREEN: []}
+    # units_dict = {Side.RED: [], Side.GREEN: []}
 
     while True:
         event, values = window.read()
@@ -62,7 +62,6 @@ def choose_units_layout():
                     color = Color.RED
                 # units_dict[side].append(create_unit(side, color, unit_type, x, y))
                 yield create_unit(side, color, unit_type, x*BLOCK_SIZE, y*BLOCK_SIZE)
-                # units_added = len(units_dict[Side.RED]) + len(units_dict[Side.GREEN])
                 layout_units_locations.append((x, y))
                 units_added = len(layout_units_locations)
                 window['-UNITS_ADDED-'].update(f'Units added: {units_added}')
