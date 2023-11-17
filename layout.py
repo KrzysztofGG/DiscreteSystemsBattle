@@ -68,7 +68,6 @@ def choose_units_layout():
                 window['-UNITS_ADDED-'].update(f'Units added: {units_added}')
              
         if event == "Exit" or event == sg.WIN_CLOSED or event == '-FINISH_SUBMITING-':
-            
             break
 
     window.close()
