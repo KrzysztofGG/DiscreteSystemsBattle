@@ -8,7 +8,7 @@ from color import Color
 
 class Side(Enum):
     RED=1
-    GREEN=2
+    BLUE=2
     
 pygame.mixer.init()
 DEATH_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'death-sound.mp3'))
@@ -33,6 +33,9 @@ class Unit:
         self.speedY = self.max_speed
         self.range = 1
         self.body = (x, y)
+        self.critical_health = self.health * 0.2
+        self.running = False
+        self.enemy_heights = []
 
     def distance(self, a, b):
         return abs(a[0] - b[0]) + abs(a[1] - b[1])
@@ -62,33 +65,38 @@ class Unit:
 
     
     def hit_enemy(self, enemy, units_dict):
-        enemy.health -= self.strength + random.uniform(0, self.strength)
+        enemy.health -= self.strength + random.uniform(0, self.strength/2)
         if enemy.health <= 0:
             DEATH_SOUND.play()
             units_dict[enemy.side].remove(enemy)
         return len(units_dict[enemy.side]) == 0
 
-    def count_speed_change(self, arena): #based on changing height of terrain
-        
+    def count_height_diff(self, arena):
         future_x = int((self.x + self.speedX)//BLOCK_SIZE)
         future_y = int((self.y + self.speedY)//BLOCK_SIZE)
         current_x = int(self.x//BLOCK_SIZE)
         current_y = int(self.y//BLOCK_SIZE)
         height_diff = arena[future_y, future_x].height - arena[current_y, current_x].height
 
+        return height_diff
+    
+    def count_speed_change(self, arena): #based on changing height of terrain
+        
+        height_diff = self.count_height_diff(arena)
+
         #preety sure it can be done nicer
         SPEED_CHANGE_MODIFIER = 10
-        if height_diff < 0.05:
+        if abs(height_diff) < 0.05:
             speed_change = (self.max_speed - self.speed)/100
         else:
             speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
 
         return speed_change
     
-    def count_speed(self, enemy_x, enemy_y, arena):
+    def count_speed(self, unit_x, unit_y, arena):
 
-        dx = enemy_x - self.x
-        dy = enemy_y - self.y
+        dx = unit_x - self.x
+        dy = unit_y - self.y
         
         dist = sqrt(pow(dx, 2) + pow(dy, 2))
         sinus = abs(dy)/dist
@@ -100,6 +108,11 @@ class Unit:
             self.speed = self.max_speed
         if self.speed < self.min_speed:
             self.speed = self.min_speed
+        
+        # make unit run away when low on healt
+        if self.running:
+            self.speed *= 0.7
+            self.speed *= -1
 
         #count horizontal speed component
         if dx > 0:
@@ -120,15 +133,55 @@ class Unit:
         #update strengh based on speed
         self.strength = self.max_strength/2 + self.max_strength * (self.speed/self.max_speed)/2
 
+    def wait_if_above_enemy(self, arena, enemy):
+
+        self_height = arena[int(self.y//BLOCK_SIZE), int(self.x//BLOCK_SIZE)].height
+        enemy_height = arena[int(enemy.y//BLOCK_SIZE), int(enemy.x//BLOCK_SIZE)].height
+
+        if self_height < 0.3 + enemy_height: #if not high enough just go
+            return
+        
+        self.enemy_heights.append(enemy.count_height_diff(arena))
+        if len(self.enemy_heights) > 5:
+            self.enemy_heights.pop()
+        
+        # if self.id == 1:
+        #     print(self.enemy_heights)
+
+        
+        if(sum(self.enemy_heights) > 0): #enemy started goind up the hill, attack
+            return
+        else: #wait for enemy
+            self.speed = 0
+            self.speedX = 0
+            self.speedY = 0
+
+
+    def choose_direction(self, squad_units, arena, enemy):
+        if len(squad_units) > 0:
+
+            squad_unit_closest = min(squad_units, key = lambda u: self.distance(u.get_location(), (self.x, self.y)))
+
+
+            if (self.distance(squad_unit_closest.get_location(), (self.x, self.y)) > 15 and not squad_unit_closest.running):
+                self.count_speed(squad_unit_closest.x, squad_unit_closest.y, arena)
+            else:
+                self.count_speed(enemy.x, enemy.y, arena)
+
+        else:
+            self.count_speed(enemy.x, enemy.y, arena)
+
     def update(self, arena, units_dict):
 
+        if self.health <= self.critical_health:
+            self.running = True
+
         # finding nearest enemy
-        if self.side == Side.GREEN:
+        if self.side == Side.BLUE:
             enemy_side = Side.RED
         else:
-            enemy_side = Side.GREEN
-        # enemy_x, enemy_y = min(unit_locations[enemy_side], key = lambda coords: self.distance(coords, (self.x, self.y)))
-        # units_locations = list(map(lambda u: (u.x, u.y), units_dict[enemy_side]))
+            enemy_side = Side.BLUE
+
         if len(units_dict[enemy_side]) == 0:
             self.speedX = 0
             self.speedY = 0
@@ -136,29 +189,28 @@ class Unit:
         
         enemy = min(units_dict[enemy_side], key = lambda e: self.distance(e.get_location(), (self.x, self.y)))
         enemy_x, enemy_y = enemy.x, enemy.y
-        # enemy_x, enemy_y = min(units_locations, key = lambda coords: self.distance(coords, (self.x, self.y)))
 
-        self.count_speed(enemy_x, enemy_y, arena)
+        squad_units = list(filter(lambda u: u.max_strength == self.max_strength and u != self, units_dict[self.side]))
         
+        # head to the nearest enemy of same type, if close enough head for enemies
+        self.choose_direction(squad_units, arena, enemy)
+        self.wait_if_above_enemy(arena, enemy)
+
+        #stop for fighting
         if (pygame.Rect.colliderect(pygame.Rect(self.x, self.y, self.size, self.size),
-            pygame.Rect(enemy_x, enemy_y, self.size, self.size))):
+            pygame.Rect(enemy_x, enemy_y, self.size, self.size)) and not self.running):
             self.speed = 0
             self.speedX = 0
             self.speedY = 0
             if self.hit_enemy(enemy, units_dict):
                 pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
 
-        
-        # adjusting speed if enemy nearby
-        # if (arena[self.x//BLOCK_SIZE - self.range, self.y//BLOCK_SIZE].unit != None or 
-        #     arena[self.x//BLOCK_SIZE + self.range, self.y//BLOCK_SIZE].unit != None or
-        #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE - self.range].unit != None or
-        #     arena[self.x//BLOCK_SIZE, self.y//BLOCK_SIZE + self.range].unit != None):
-        #     self.speedX = 0
-        #     self.speedY = 0
-
         self.x += self.speedX
         self.y += self.speedY
+
+        #remove unit if ran out of the arena
+        if self.x < 0 or self.x > WIDTH or self.y < 0 or self.y > HEIGHT:
+            units_dict[self.side].remove(self)
 
         self.body = (self.x, self.y)
         
@@ -167,7 +219,9 @@ class Infantry(Unit):
     def __init__(self, color, x, y, side, id=0):
         super().__init__(color, x, y, side, id)
         self.size=BLOCK_SIZE
-        self.strength=10
+        # self.max_strength = 10
+        self.max_strength = 12
+        self.strength = self.max_strength/2
         self.health=100
         self.range = 2
 
@@ -176,10 +230,12 @@ class Infantry(Unit):
 
 
 class Heavy(Unit):
-    def __init__(self,color,x,y, side):
-        super().__init__(color, x, y, side)
+    def __init__(self,color,x,y, side, id=0):
+        super().__init__(color, x, y, side, id)
         self.size=BLOCK_SIZE//2
-        self.strength=30
+        # self.max_strength = 30
+        self.max_strength = 16
+        self.strength = self.max_strength /2
         self.health=200
         self.min_speed=BLOCK_SIZE//10
         self.range = 2
@@ -193,7 +249,9 @@ class Cavalry(Unit):
     def __init__(self, color, x, y, side):
         super().__init__(color, x, y, side)
         self.size=BLOCK_SIZE
-        self.strength=60
+        # self.max_strength=60
+        self.max_strength=20
+        self.strength = self.max_strength / 2
         self.health=150
         self.max_speed=BLOCK_SIZE//2
         self.min_speed=BLOCK_SIZE//4

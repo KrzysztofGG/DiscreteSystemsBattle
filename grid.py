@@ -27,9 +27,8 @@ class GroundElement:
 
 class Grid():
 
-    def __init__(self, units_dict = {Side.RED: [], Side.GREEN: []}):
-        # self.units_dict = {Side.RED: [], Side.GREEN: []}
-        self.units_dict = units_dict
+    def __init__(self, units_dict = {Side.RED: [], Side.BLUE: []}):
+        # self.units_dict = units_dict
         self.arena = np.zeros((HEIGHT//BLOCK_SIZE, WIDTH//BLOCK_SIZE), dtype=object)
         for y in range(0, self.arena.shape[0]):
             for x in range(0, self.arena.shape[1]):
@@ -84,15 +83,21 @@ class Grid():
 
     def draw_end_screen(self):
         FONT = pygame.font.SysFont('arial', 200)
-        if len(self.units_dict[Side.GREEN]) > 0:
-            winner = "GREEN"
+        if len(self.units_dict[Side.BLUE]) > 0:
+            winner = "BLUE"
         else:
             winner = "RED"
         text = f'{winner} UNITS WIN'
         text_render = FONT.render(text, 1, Color.WHITE.value)
         WIN.blit(text_render, (WIDTH/2 - text_render.get_width()/2,
                             HEIGHT/2 - text_render.get_height()/2))
-        pygame.time.delay(1000)
+        
+        FONT_SMALL = pygame.font.SysFont('arial', 50)
+        text_small = "Press space to restart"
+        text_small_render = FONT_SMALL.render(text_small, 1, Color.WHITE.value)
+        WIN.blit(text_small_render, (WIDTH/2 - text_small_render.get_width()/2,
+                                HEIGHT/2 - text_small_render.get_height()/2 + text_render.get_height()/2))
+        # pygame.time.delay(1000)
 
     def draw_all_units_details(self):
         for s in self.units_dict.keys():
@@ -101,7 +106,6 @@ class Grid():
                     u.show_unit_details(self.arena)
         
     def drawGrid(self):
-
         for y in range(0, self.arena.shape[0]):
             for x in range(0, self.arena.shape[1]):
                 self.arena[y, x].draw(WIN)
