@@ -5,7 +5,7 @@ from utils import *
 import random
 import os
 from color import Color
-
+import random
 class Side(Enum):
     RED=1
     GREEN=2
@@ -26,8 +26,8 @@ class Unit:
         self.strength = self.max_strength
         self.color = color
         self.side = side
-        self.max_speed = BLOCK_SIZE//2
-        self.min_speed = BLOCK_SIZE//6
+        self.max_speed = BLOCK_SIZE
+        self.min_speed = BLOCK_SIZE
         self.speed = (self.max_speed + self.min_speed)//2
         self.speedX = self.max_speed
         self.speedY = self.max_speed
@@ -181,7 +181,7 @@ class Heavy(Unit):
         self.size=BLOCK_SIZE//2
         self.strength=30
         self.health=200
-        self.min_speed=BLOCK_SIZE//10
+        self.min_speed=BLOCK_SIZE//5
         self.range = 2
 
     def draw(self, window):
@@ -195,8 +195,8 @@ class Cavalry(Unit):
         self.size=BLOCK_SIZE
         self.strength=60
         self.health=150
-        self.max_speed=BLOCK_SIZE//2
-        self.min_speed=BLOCK_SIZE//4
+        self.max_speed=BLOCK_SIZE
+        self.min_speed=BLOCK_SIZE//2
         self.range = 2
         self.triangle=makeTriangle(self.size, 45, 0)
         self.body=offsetTriangle(self.triangle, self.x, self.y)
@@ -251,3 +251,29 @@ def offsetTriangle(triangle, offsetx, offsety):
     x=(triangle.p1[0]+triangle.p2[0]+triangle.p3[0])/3
     y=(triangle.p1[1]+triangle.p2[1]+triangle.p3[1])/3
     return (x,y)
+
+
+
+def addFormation(grid,x,y,amount,size,Side,type):
+    units=[]
+    if Side==Side.RED: 
+        color=Color.RED
+    else:
+        color=Color.BLUE
+    for i in range(0,amount):
+        rand=random.randrange(-size,size)
+        rand2=random.random()
+        offset_x=x +rand*rand2
+        rand=random.randrange(-size,size)
+        rand2=random.random()
+        offset_y=y +rand*rand2
+        if type =="infantry":
+            units.append(Infantry(color,offset_x,offset_y, Side))
+        elif type=="heavy":
+            units.append(Heavy(color,offset_x,offset_y, Side))
+        elif type=="cavalry":
+             units.append(Cavalry(color,offset_x,offset_y,Side))
+        else:
+            pass
+    for unit in units:
+        grid.units_dict[Side].append(unit)    

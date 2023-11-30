@@ -55,6 +55,32 @@ class Grid():
                             self.arena[y, x].height = 1
 
                         self.arena[y, x].updateColor()
+    def drawRiver(self,x1,x2,y1,y2):
+        for x  in range(x1,x2):
+            for y in range(y1,y2):
+                self.arena[x,y].color=(0, 0, 255)
+
+
+    def create_equal_hill_on_arena(self, centerX, centerY, radius, height):
+
+        for y in range(centerY - radius, centerY + radius):
+            yDiff = y - centerY
+            threshold = radius*radius - (yDiff * yDiff)
+            for x in range(centerX - radius, centerX + radius):
+
+                if( y >= 0 and y < self.arena.shape[0]  and
+                    x >= 0 and x < self.arena.shape[1] ):
+                
+                    xDiff = x - centerX
+                    if xDiff * xDiff <= threshold:
+                        dist = sqrt(pow(yDiff, 2) + pow(xDiff, 2))
+                        height_increase = height
+
+                        self.arena[y, x].height += height_increase
+                        if self.arena[y, x].height > 1:
+                            self.arena[y, x].height = 1
+
+                        self.arena[y, x].updateColor()
 
     def fill_arena_with_hills(self, n_hills, min_radius, max_radius):
 
@@ -74,6 +100,7 @@ class Grid():
                 radius = random.randint(min_radius, max_radius)
                 max_height = random.uniform(0.6, 0.8)
                 self.create_circle_hill_on_arena(x, y, radius, max_height)
+                print(x,y,radius,max_height)
                 current_hill -= 1
     
     def drawPause(self):
