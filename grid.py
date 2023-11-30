@@ -12,7 +12,8 @@ class GroundElement:
         self.border = BLOCK_SIZE
         self.height = 0
         self.color = (0, 255, 0)
-        self.unit = None
+        # self.unit = None
+        self.river = False
         self.body = pygame.Rect(self.x, self.y, self.border, self.border)
     
     def draw(self, window):
@@ -24,6 +25,9 @@ class GroundElement:
         green_color = min(255, pct_diff * 2 * 255)
         col = (red_color, green_color, 0)
         self.color = col
+
+    def setColor(self, color):
+        self.color = color
 
 class Grid():
 
@@ -54,6 +58,38 @@ class Grid():
                             self.arena[y, x].height = 1
 
                         self.arena[y, x].updateColor()
+
+    def create_river(self, start, end, width, is_vertical):
+
+        if is_vertical:
+            range_y = end[0] - start[0]
+            range_x = width
+        else:
+            range_y = width
+            range_x = end[1] - start[1]
+
+        for y in range(range_y):
+            for x in range(range_x):
+
+                if( y >= 0 + start[0] and y + start[0] < self.arena.shape[0]  and
+                    x + start[1]>= 0 and x + start[1]< self.arena.shape[1] ):
+                    
+                    if is_vertical:
+                        dist = abs(x - width/2)/width  
+                    else:
+                        dist = abs(y - width/2)/width 
+
+                    diff = 1 - dist - 0.2
+                    r = 0
+                    g = min(255, 255 * 2 * dist)
+                    b = min(255, 255 * 2 * diff)
+ 
+                    color = (r, g, b)
+                    self.arena[y + start[0], x + start[1]].setColor(color)
+                    self.arena[y + start[0], x + start[1]].river = True
+
+    def create_polygon_river(self, points):
+        pygame.draw.polygon(WIN, Color.BLUE.value, points)
 
     def fill_arena_with_hills(self, n_hills, min_radius, max_radius):
 
