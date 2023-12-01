@@ -164,7 +164,6 @@ class Unit:
         dy = unit_y - self.y
 
         dist = sqrt(pow(dx, 2) + pow(dy, 2))
-        print(dist, self.id, self.health)
         sinus = abs(dy)/dist
         cosinus = abs(dx)/dist
 
@@ -280,6 +279,8 @@ class Unit:
             units_dict[self.side].remove(self)
 
         self.body = (self.x, self.y)
+
+    
         
 
 class Infantry(Unit):
@@ -377,3 +378,28 @@ def offsetTriangle(triangle, offsetx, offsety):
     x=(triangle.p1[0]+triangle.p2[0]+triangle.p3[0])/3
     y=(triangle.p1[1]+triangle.p2[1]+triangle.p3[1])/3
     return (x,y)
+
+
+def addFormation(grid,x,y,amount,size,Side,type):
+    units=[]
+    if Side==Side.RED: 
+        color=Color.RED
+    else:
+        color=Color.BLUE
+    for i in range(0,amount):
+        rand=random.randrange(-size,size)
+        rand2=random.random()
+        offset_x=x +rand*rand2
+        rand=random.randrange(-size,size)
+        rand2=random.random()
+        offset_y=y +rand*rand2
+        if type =="infantry":
+            units.append(Infantry(color,offset_x,offset_y, Side))
+        elif type=="heavy":
+            units.append(Heavy(color,offset_x,offset_y, Side))
+        elif type=="cavalry":
+             units.append(Cavalry(color,offset_x,offset_y,Side))
+        else:
+            pass
+    for unit in units:
+        grid.units_dict[Side].append(unit)

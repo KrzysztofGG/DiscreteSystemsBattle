@@ -18,9 +18,6 @@ FONT = pygame.font.SysFont('arial', 200)
 
 MOVEMENT_EVENT = pygame.USEREVENT + 1
 
-
-
-
 def main():
     pygame.display.set_caption("Battle Simulator")
     CLOCK = pygame.time.Clock()
@@ -38,19 +35,19 @@ def main():
     paused = False
     ended = False
 
-    unit_r = Infantry(Color.RED,350,550, Side.RED)
-    unit_r2 = Heavy(Color.RED,650,500, Side.RED)
-    unit_b = Heavy(Color.BLUE,600,570, Side.GREEN)
-    unit_c = Infantry(Color.BLUE,380,400, Side.GREEN)
-    unit_b1 = Heavy(Color.BLUE,410,500, Side.GREEN)
-    unit_c1 = Cavalry(Color.RED,600,500, Side.RED)
+    # unit_r = Infantry(Color.RED,350,550, Side.RED)
+    # unit_r2 = Heavy(Color.RED,650,500, Side.RED)
+    # unit_b = Heavy(Color.BLUE,600,570, Side.GREEN)
+    # unit_c = Infantry(Color.BLUE,380,400, Side.GREEN)
+    # unit_b1 = Heavy(Color.BLUE,410,500, Side.GREEN)
+    # unit_c1 = Cavalry(Color.RED,600,500, Side.RED)
 
-    grid.units_dict[Side.RED].append(unit_r)
-    grid.units_dict[Side.RED].append(unit_r2)
-    grid.units_dict[Side.GREEN].append(unit_b)
-    grid.units_dict[Side.GREEN].append(unit_c)
-    grid.units_dict[Side.GREEN].append(unit_b1)
-    grid.units_dict[Side.RED].append(unit_c1)
+    # grid.units_dict[Side.RED].append(unit_r)
+    # grid.units_dict[Side.RED].append(unit_r2)
+    # grid.units_dict[Side.GREEN].append(unit_b)
+    # grid.units_dict[Side.GREEN].append(unit_c)
+    # grid.units_dict[Side.GREEN].append(unit_b1)
+    # grid.units_dict[Side.RED].append(unit_c1)
     
     while True:
         CLOCK.tick(FPS)
@@ -67,7 +64,6 @@ def main():
             elif event.type == MOVEMENT_EVENT:
                 if not paused:
                     update_units(grid)
-                    print(len(grid.units_dict[Side.RED]) + len(grid.units_dict[Side.GREEN]))
 
         if not ended:      
             grid.drawGrid()

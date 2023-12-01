@@ -32,11 +32,16 @@ class GroundElement:
 class Grid():
 
     def __init__(self, units_dict = {Side.RED: [], Side.BLUE: []}):
-        # self.units_dict = units_dict
+        self.units_dict = units_dict
         self.arena = np.zeros((HEIGHT//BLOCK_SIZE, WIDTH//BLOCK_SIZE), dtype=object)
         for y in range(0, self.arena.shape[0]):
             for x in range(0, self.arena.shape[1]):
                 self.arena[y, x] = GroundElement(x*BLOCK_SIZE, y*BLOCK_SIZE)
+
+    def drawRiver(self,x1,x2,y1,y2):
+        for x  in range(x1,x2):
+            for y in range(y1,y2):
+                self.arena[x,y].color=(0, 0, 255)
 
     def create_circle_hill_on_arena(self, centerX, centerY, radius, max_height):
 
