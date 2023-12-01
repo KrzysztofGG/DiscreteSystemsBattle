@@ -12,7 +12,8 @@ class GroundElement:
         self.border = BLOCK_SIZE
         self.height = 0
         self.color = (0, 255, 0)
-        self.unit = None
+        # self.unit = None
+        self.river = False
         self.body = pygame.Rect(self.x, self.y, self.border, self.border)
     
     def draw(self, window):
@@ -25,11 +26,13 @@ class GroundElement:
         col = (red_color, green_color, 0)
         self.color = col
 
+    def setColor(self, color):
+        self.color = color
+
 class Grid():
 
-    def __init__(self, units_dict = {Side.RED: [], Side.GREEN: []}):
-        # self.units_dict = {Side.RED: [], Side.GREEN: []}
-        self.units_dict = units_dict
+    def __init__(self, units_dict = {Side.RED: [], Side.BLUE: []}):
+        # self.units_dict = units_dict
         self.arena = np.zeros((HEIGHT//BLOCK_SIZE, WIDTH//BLOCK_SIZE), dtype=object)
         for y in range(0, self.arena.shape[0]):
             for x in range(0, self.arena.shape[1]):
@@ -55,6 +58,38 @@ class Grid():
                             self.arena[y, x].height = 1
 
                         self.arena[y, x].updateColor()
+
+    def create_river(self, start, end, width, is_vertical):
+
+        if is_vertical:
+            range_y = end[0] - start[0]
+            range_x = width
+        else:
+            range_y = width
+            range_x = end[1] - start[1]
+
+        for y in range(range_y):
+            for x in range(range_x):
+
+                if( y >= 0 + start[0] and y + start[0] < self.arena.shape[0]  and
+                    x + start[1]>= 0 and x + start[1]< self.arena.shape[1] ):
+                    
+                    if is_vertical:
+                        dist = abs(x - width/2)/width  
+                    else:
+                        dist = abs(y - width/2)/width 
+
+                    diff = 1 - dist - 0.2
+                    r = 0
+                    g = min(255, 255 * 2 * dist)
+                    b = min(255, 255 * 2 * diff)
+ 
+                    color = (r, g, b)
+                    self.arena[y + start[0], x + start[1]].setColor(color)
+                    self.arena[y + start[0], x + start[1]].river = True
+
+    def create_polygon_river(self, points):
+        pygame.draw.polygon(WIN, Color.BLUE.value, points)
 
     def fill_arena_with_hills(self, n_hills, min_radius, max_radius):
 
@@ -84,15 +119,21 @@ class Grid():
 
     def draw_end_screen(self):
         FONT = pygame.font.SysFont('arial', 200)
-        if len(self.units_dict[Side.GREEN]) > 0:
-            winner = "GREEN"
+        if len(self.units_dict[Side.BLUE]) > 0:
+            winner = "BLUE"
         else:
             winner = "RED"
         text = f'{winner} UNITS WIN'
         text_render = FONT.render(text, 1, Color.WHITE.value)
         WIN.blit(text_render, (WIDTH/2 - text_render.get_width()/2,
                             HEIGHT/2 - text_render.get_height()/2))
-        pygame.time.delay(1000)
+        
+        FONT_SMALL = pygame.font.SysFont('arial', 50)
+        text_small = "Press space to restart"
+        text_small_render = FONT_SMALL.render(text_small, 1, Color.WHITE.value)
+        WIN.blit(text_small_render, (WIDTH/2 - text_small_render.get_width()/2,
+                                HEIGHT/2 - text_small_render.get_height()/2 + text_render.get_height()/2))
+        # pygame.time.delay(1000)
 
     def draw_all_units_details(self):
         for s in self.units_dict.keys():
@@ -101,7 +142,6 @@ class Grid():
                     u.show_unit_details(self.arena)
         
     def drawGrid(self):
-
         for y in range(0, self.arena.shape[0]):
             for x in range(0, self.arena.shape[1]):
                 self.arena[y, x].draw(WIN)
