@@ -69,7 +69,7 @@ class Unit:
         if enemy.health <= 0:
             DEATH_SOUND.play()
             units_dict[enemy.side].remove(enemy)
-        return len(units_dict[enemy.side]) == 0
+        # return len(units_dict[enemy.side]) == 0
 
     def count_height_diff(self, arena):
         future_x = int((self.x + self.speedX)//BLOCK_SIZE)
@@ -92,32 +92,50 @@ class Unit:
         current_x = int(self.x//BLOCK_SIZE)
         current_y = int(self.y//BLOCK_SIZE)
 
-        y_to_go = 0
-        x_to_go = 0
+
+
+        # if self.goind_around:
+        #     if self.id == 1:
+        #         print(self.x_to_go, self.x)
+        #     if abs(self.y_to_go - self.y) < 2 or abs(self.x_to_go - self.x) < 2:
+        #         self.goind_around = False
+        #         return
+        # else:
+            # self.y_to_go = self.y
+            # self.x_to_go = self.x
+            # return
 
         if self.goind_around:
-            if abs(y_to_go - self.y) < 0.01 or abs(x_to_go - self.x) < 0.01:
+            if (self.going_horizontal and abs(self.x_to_go - self.x) < 3) or (self.going_vertical and abs(self.y_to_go - self.y) < 3):
                 self.goind_around = False
-                
+                self.going_vertical = False
+                self.going_horizontal = False
                 return
+            
         if arena[current_y, future_x].river or arena[current_y, expected_x1].river or arena[current_y, expected_x2].river :
 
 
             if not self.goind_around:
-                y_to_go = self.find_way_around_vertical(arena, current_y, future_x) * BLOCK_SIZE
+                self.y_to_go = self.find_way_around_vertical(arena, current_y, future_x) * BLOCK_SIZE
+                self.x_to_go = self.x
+                self.going_vertical = True
+                self.going_horizontal = False
 
-                self.count_speed(current_x * BLOCK_SIZE, y_to_go, arena)
+                self.count_speed(current_x * BLOCK_SIZE, self.y_to_go, arena)
                 self.goind_around = True
         elif arena[future_y, current_x].river or arena[expected_y1, current_x].river or arena[expected_y2, expected_x2].river:
 
             if not self.goind_around:
-                x_to_go = self.find_way_around_horizontal(arena, current_x, future_y) * BLOCK_SIZE
+                self.x_to_go = self.find_way_around_horizontal(arena, current_x, future_y) * BLOCK_SIZE
+                self.y_to_go = self.y
+                self.going_horizontal = True
+                self.going_vertical = False
 
-                self.count_speed(x_to_go, current_y * BLOCK_SIZE, arena)
+                self.count_speed(self.x_to_go, current_y * BLOCK_SIZE, arena)
                 self.goind_around = True
 
-        else:
-            self.goind_around = False
+        # else:
+        #     self.goind_around = False
 
     def find_way_around_vertical(self, arena, current_y, future_x):
 
@@ -152,7 +170,7 @@ class Unit:
         #preety sure it can be done nicer
         SPEED_CHANGE_MODIFIER = 10
         if abs(height_diff) < 0.05:
-            speed_change = (self.max_speed - self.speed)/100
+            speed_change = (self.max_speed - self.speed)/80
         else:
             speed_change =  -height_diff * self.max_speed * SPEED_CHANGE_MODIFIER
 
@@ -195,8 +213,6 @@ class Unit:
         else:
             self.speedY = -self.speed * sinus
 
-        # if self.id == 1:
-        #     print(self.speedX, self.speedY)
 
         #update strengh based on speed
         self.strength = self.max_strength/2 + self.max_strength * (self.speed/self.max_speed)/2
@@ -226,7 +242,7 @@ class Unit:
 
             squad_unit_closest = min(squad_units, key = lambda u: self.distance(u.get_location(), (self.x, self.y)))
 
-            if (self.distance(squad_unit_closest.get_location(), (self.x, self.y)) > 15 and not squad_unit_closest.running):
+            if (self.distance(squad_unit_closest.get_location(), (self.x, self.y)) > 25 and not squad_unit_closest.running):
                 self.count_speed(squad_unit_closest.x, squad_unit_closest.y, arena)
             else:
                 self.count_speed(enemy.x, enemy.y, arena)
@@ -263,13 +279,14 @@ class Unit:
             self.speed = 0
             self.speedX = 0
             self.speedY = 0
-            if self.hit_enemy(enemy, units_dict):
-                pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
+            self.hit_enemy(enemy, units_dict)
+
+
 
         self.check_if_river(arena)
         if not self.goind_around:     
             self.choose_direction(squad_units, arena, enemy)
-            self.wait_if_above_enemy(arena, enemy)
+            # self.wait_if_above_enemy(arena, enemy)
 
         self.x += self.speedX
         self.y += self.speedY
@@ -278,7 +295,11 @@ class Unit:
         if self.x < 0 or self.x > WIDTH or self.y < 0 or self.y > HEIGHT:
             units_dict[self.side].remove(self)
 
-        self.body = (self.x, self.y)
+        if len(units_dict[enemy.side]) == 0:
+            pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT)) 
+
+        self.body = (self.x, self.y)        
+
 
     
         
@@ -287,10 +308,11 @@ class Infantry(Unit):
     def __init__(self, color, x, y, side, id=0):
         super().__init__(color, x, y, side, id)
         self.size=BLOCK_SIZE
-        # self.max_strength = 10
         self.max_strength = 12
         self.strength = self.max_strength/2
         self.health=100
+        self.max_speed = BLOCK_SIZE//2
+        self.min_speed = BLOCK_SIZE//6
         # self.range = 2
 
     def draw(self, window):
@@ -303,7 +325,7 @@ class Heavy(Unit):
         self.size=BLOCK_SIZE//2
         # self.max_strength = 30
         self.max_strength = 16
-        self.strength = self.max_strength /2
+        self.strength = self.max_strength/2
         self.health=200
         self.max_speed=BLOCK_SIZE//3
         self.min_speed=BLOCK_SIZE//8
@@ -322,8 +344,8 @@ class Cavalry(Unit):
         self.max_strength=20
         self.strength = self.max_strength / 2
         self.health=150
-        self.max_speed=BLOCK_SIZE//2
-        self.min_speed=BLOCK_SIZE//4
+        self.max_speed=BLOCK_SIZE
+        self.min_speed=BLOCK_SIZE//2
         # self.range = 2
         self.triangle=makeTriangle(self.size, 45, 0)
         self.body=offsetTriangle(self.triangle, self.x, self.y)

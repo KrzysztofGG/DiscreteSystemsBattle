@@ -76,8 +76,8 @@ class Grid():
         for y in range(range_y):
             for x in range(range_x):
 
-                if( y >= 0 + start[0] and y + start[0] < self.arena.shape[0]  and
-                    x + start[1]>= 0 and x + start[1]< self.arena.shape[1] ):
+                # if( y >= 0 + start[0] and y + start[0] < self.arena.shape[0]  and
+                #     x + start[1]>= 0 and x + start[1]< self.arena.shape[1] ):
                     
                     if is_vertical:
                         dist = abs(x - width/2)/width  
