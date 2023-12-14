@@ -17,7 +17,19 @@ pygame.mixer.music.set_volume(0.2)
 FONT = pygame.font.SysFont('arial', 200)
 
 MOVEMENT_EVENT = pygame.USEREVENT + 1
+def init_simulation(grid, units_list, add_hills=False):
 
+    grid.end_played = False
+    paused, ended = False, False
+    if add_hills:
+        grid.fill_arena_with_hills(3, 40, 60)
+    grid.create_river((87, 0), (87, 180), 10, False)
+
+    grid.units_dict = {Side.RED: [], Side.BLUE: []}
+    for u in units_list:
+        grid.units_dict[u.side].append(u)
+
+    return paused, ended
 def main():
     pygame.display.set_caption("Battle Simulator")
     CLOCK = pygame.time.Clock()
@@ -25,15 +37,13 @@ def main():
     grid = Grid()
     units_list = list(choose_units_layout())
 
-    grid.fill_arena_with_hills(3, 40, 60)
-    for u in units_list:
-        grid.units_dict[u.side].append(u)
 
+
+    
     pygame.time.set_timer(MOVEMENT_EVENT, 200)
 
+    paused, ended = init_simulation(grid, units_list, True)
 
-    paused = False
-    ended = False
 
     # unit_r = Infantry(Color.RED,350,550, Side.RED)
     # unit_r2 = Heavy(Color.RED,650,500, Side.RED)
@@ -59,8 +69,11 @@ def main():
                 grid.draw_end_screen()
                 ended = True
                 # break
+            elif event.type == KEYDOWN and event.key == K_SPACE and ended:
+                paused, ended = init_simulation(grid, units_list)
             elif event.type == KEYDOWN and event.key == K_SPACE:
                 paused = not paused
+
             elif event.type == MOVEMENT_EVENT:
                 if not paused:
                     update_units(grid)
@@ -75,7 +88,8 @@ def main():
                 grid.drawPause()
                 
             grid.draw_all_units_details()
-
+        else:
+            grid.draw_end_screen()
 
         pygame.display.update()
 

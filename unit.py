@@ -92,19 +92,6 @@ class Unit:
         current_x = int(self.x//BLOCK_SIZE)
         current_y = int(self.y//BLOCK_SIZE)
 
-
-
-        # if self.goind_around:
-        #     if self.id == 1:
-        #         print(self.x_to_go, self.x)
-        #     if abs(self.y_to_go - self.y) < 2 or abs(self.x_to_go - self.x) < 2:
-        #         self.goind_around = False
-        #         return
-        # else:
-            # self.y_to_go = self.y
-            # self.x_to_go = self.x
-            # return
-
         if self.goind_around:
             if (self.going_horizontal and abs(self.x_to_go - self.x) < 3) or (self.going_vertical and abs(self.y_to_go - self.y) < 3):
                 self.goind_around = False
@@ -140,7 +127,7 @@ class Unit:
     def find_way_around_vertical(self, arena, current_y, future_x):
 
         index = 0
-        while current_y - index >= 0 or current_y + index < arena.shape[0]:
+        while current_y - index >= 0 or current_y + index < arena.shape[0] - 1:
 
             if not arena[current_y + index, future_x].river:
                 # return True
@@ -155,7 +142,7 @@ class Unit:
     def find_way_around_horizontal(self, arena, current_x, future_y):
 
         index = 0
-        while current_x - index >= 0 or current_x + index < arena.shape[1]:
+        while current_x - index >= 0 and current_x + index < arena.shape[1] - 1:
             if not arena[future_y, current_x + index].river:
                 return current_x + index + 1
             elif not arena[future_y, current_x - index].river:
@@ -212,7 +199,6 @@ class Unit:
             self.speedY = 0
         else:
             self.speedY = -self.speed * sinus
-
 
         #update strengh based on speed
         self.strength = self.max_strength/2 + self.max_strength * (self.speed/self.max_speed)/2
@@ -281,8 +267,6 @@ class Unit:
             self.speedY = 0
             self.hit_enemy(enemy, units_dict)
 
-
-
         self.check_if_river(arena)
         if not self.goind_around:     
             self.choose_direction(squad_units, arena, enemy)
@@ -294,15 +278,14 @@ class Unit:
         #remove unit if ran out of the arena
         if self.x < 0 or self.x > WIDTH or self.y < 0 or self.y > HEIGHT:
             units_dict[self.side].remove(self)
+            if len(units_dict[self.side]) == 0:
+                pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT))
 
-        if len(units_dict[enemy.side]) == 0:
+        if enemy != None and len(units_dict[enemy.side]) == 0:
             pygame.event.post(pygame.event.Event(GAME_ENDS_EVENT)) 
 
         self.body = (self.x, self.y)        
 
-
-    
-        
 
 class Infantry(Unit):
     def __init__(self, color, x, y, side, id=0):

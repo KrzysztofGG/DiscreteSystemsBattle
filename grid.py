@@ -4,6 +4,11 @@ from utils import *
 from unit import Side
 from math import sqrt, pow
 import random
+import os
+
+pygame.mixer.init()
+WIN_SOUND = pygame.mixer.Sound(os.path.join('Assets', 'polska-gurom-3.mp3'))
+WIN_SOUND.set_volume(5)
 
 class GroundElement:
     def __init__(self, x, y):
@@ -32,6 +37,7 @@ class GroundElement:
 class Grid():
 
     def __init__(self, units_dict = {Side.RED: [], Side.BLUE: []}):
+        self.end_played = False
         self.units_dict = units_dict
         self.arena = np.zeros((HEIGHT//BLOCK_SIZE, WIDTH//BLOCK_SIZE), dtype=object)
         for y in range(0, self.arena.shape[0]):
@@ -138,7 +144,10 @@ class Grid():
         text_small_render = FONT_SMALL.render(text_small, 1, Color.WHITE.value)
         WIN.blit(text_small_render, (WIDTH/2 - text_small_render.get_width()/2,
                                 HEIGHT/2 - text_small_render.get_height()/2 + text_render.get_height()/2))
-        # pygame.time.delay(1000)
+        
+        if "BLUE" in text and not self.end_played:
+            WIN_SOUND.play()
+            self.end_played = True
 
     def draw_all_units_details(self):
         for s in self.units_dict.keys():
